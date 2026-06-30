@@ -13,7 +13,6 @@ export default function Home() {
   const [idees, setIdees] = useState([]);
   const [isRecording, setIsRecording] = useState(false);
   const [transcript, setTranscript] = useState('');
-  const [expandedPhase, setExpandedPhase] = useState(null);
 
   useEffect(() => {
     fetchCalendar();
@@ -220,13 +219,9 @@ export default function Home() {
             <p>Lancer une production intensive de contenu : <strong>1 vidéo longue par jour + 3+ réels par jour</strong></p>
           </section>
 
-          <section className="strategie-phase" onClick={() => setExpandedPhase(expandedPhase === 'phase1' ? null : 'phase1')}>
-            <div className="phase-header">
-              <h2>🔴 Phase 1 : Préparation (1-5 juillet)</h2>
-              <span className="expand-icon">{expandedPhase === 'phase1' ? '▼' : '▶'}</span>
-            </div>
-            {expandedPhase === 'phase1' && (
-              <div className="phase-details">
+          <section className="strategie-phase">
+            <h2>🔴 Phase 1 : Préparation (1-5 juillet)</h2>
+            <div className="phase-details">
                 <p><strong>Objectif :</strong> Préparer tout le matériel, setup technique et contenu en brouillon pour démarrer la production intensive.</p>
                 <ul>
                   <li>✓ Tester caméra, micro, lumières, décor</li>
@@ -236,16 +231,11 @@ export default function Home() {
                   <li>✓ Préparer graphiques, templates, musiques</li>
                 </ul>
               </div>
-            )}
           </section>
 
-          <section className="strategie-phase" onClick={() => setExpandedPhase(expandedPhase === 'phase2' ? null : 'phase2')}>
-            <div className="phase-header">
-              <h2>🔵 Phase 2 : Lancement (6-20 juillet)</h2>
-              <span className="expand-icon">{expandedPhase === 'phase2' ? '▼' : '▶'}</span>
-            </div>
-            {expandedPhase === 'phase2' && (
-              <div className="phase-details">
+          <section className="strategie-phase">
+            <h2>🔵 Phase 2 : Lancement (6-20 juillet)</h2>
+            <div className="phase-details">
                 <p><strong>Objectif :</strong> 50% contenu SaaS (stratégie business) + 50% Personal Branding (vlogs, lifestyle).</p>
                 <ul>
                   <li>📹 1 vidéo longue/jour (environ 15-30 min)</li>
@@ -255,16 +245,11 @@ export default function Home() {
                   <li>📊 Analyser engagement et adapter</li>
                 </ul>
               </div>
-            )}
           </section>
 
-          <section className="strategie-phase" onClick={() => setExpandedPhase(expandedPhase === 'phase3' ? null : 'phase3')}>
-            <div className="phase-header">
-              <h2>🟠 Phase 3 : SaaS Focus (21 juil - début août)</h2>
-              <span className="expand-icon">{expandedPhase === 'phase3' ? '▼' : '▶'}</span>
-            </div>
-            {expandedPhase === 'phase3' && (
-              <div className="phase-details">
+          <section className="strategie-phase">
+            <h2>🟠 Phase 3 : SaaS Focus (21 juil - début août)</h2>
+            <div className="phase-details">
                 <p><strong>Objectif :</strong> 100% contenu SaaS + commencer à préparer le trip Airbnb (logistique, équipement).</p>
                 <ul>
                   <li>🎯 Toutes les vidéos centrées sur la stratégie, croissance, monetization</li>
@@ -273,16 +258,11 @@ export default function Home() {
                   <li>👥 Potentiellement inviter d'autres créateurs pour la production</li>
                 </ul>
               </div>
-            )}
           </section>
 
-          <section className="strategie-phase" onClick={() => setExpandedPhase(expandedPhase === 'phase4' ? null : 'phase4')}>
-            <div className="phase-header">
-              <h2>🟢 Phase 4 : Production Trip (1-10 août)</h2>
-              <span className="expand-icon">{expandedPhase === 'phase4' ? '▼' : '▶'}</span>
-            </div>
-            {expandedPhase === 'phase4' && (
-              <div className="phase-details">
+          <section className="strategie-phase">
+            <h2>🟢 Phase 4 : Production Trip (1-10 août)</h2>
+            <div className="phase-details">
                 <p><strong>Objectif :</strong> 10 jours de production intensive en Airbnb avec équipe/collaborateurs pour créer du contenu massif.</p>
                 <ul>
                   <li>🏠 Location Airbnb adaptée au tournage (good lighting, space, wifi)</li>
@@ -292,7 +272,6 @@ export default function Home() {
                   <li>🚀 Résultat : stock de 3 mois de contenu créé</li>
                 </ul>
               </div>
-            )}
           </section>
         </section>
       )}
