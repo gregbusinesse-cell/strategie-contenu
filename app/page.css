@@ -75,7 +75,10 @@ header .subtitle {
 
 .tab-content.active,
 .strategie-content,
-.calendrier-content {
+.calendrier-content,
+.reunions-content,
+.idees-content,
+.finances-content {
   display: block;
 }
 
