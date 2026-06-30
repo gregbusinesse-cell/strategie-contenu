@@ -248,28 +248,30 @@ export default function Home() {
           </section>
 
           <section className="strategie-phase">
-            <h2>🟠 Phase 3 : SaaS Focus (21 juil - début août)</h2>
+            <h2>🟠 Phase 3 : Branding Focus (21 juil - alentours du 21 juillet)</h2>
             <div className="phase-details">
-                <p><strong>Objectif :</strong> 100% contenu SaaS + commencer à préparer le trip Airbnb (logistique, équipement).</p>
+                <p><strong>Objectif :</strong> 80% Personal Branding + 20% contenu SaaS. Finir TOUTE la préparation du trip Airbnb pour être prêt à partir.</p>
                 <ul>
-                  <li>🎯 Toutes les vidéos centrées sur la stratégie, croissance, monetization</li>
-                  <li>📅 Préparer le trip : choisir Airbnb, réserver, faire liste équipement</li>
-                  <li>🎬 Préparer scénarios pour le trip (tutoriels en situation, vlogs informatifs)</li>
-                  <li>👥 Potentiellement inviter d'autres créateurs pour la production</li>
+                  <li>👤 80% contenu branding : coulisses, lifestyle, personal touch</li>
+                  <li>💼 20% contenu SaaS : stratégie et cas d'usage</li>
+                  <li>🏠 Choisir l'Airbnb parfait (bon éclairage naturel, espace travail, wifi stable)</li>
+                  <li>✈️ Réserver, faire liste du matériel, préparer les valises</li>
+                  <li>✅ Après le 21 juillet : TOUT EST PRÉVU, plus rien à réfléchir, juste faire les valises</li>
                 </ul>
               </div>
           </section>
 
           <section className="strategie-phase">
-            <h2>🟢 Phase 4 : Production Trip (1-10 août)</h2>
+            <h2>🟢 Phase 4 : Production Trip Airbnb (2-3 jours max)</h2>
             <div className="phase-details">
-                <p><strong>Objectif :</strong> 10 jours de production intensive en Airbnb avec équipe/collaborateurs pour créer du contenu massif.</p>
+                <p><strong>Objectif :</strong> 48-72 heures de production ULTRA intensive en Airbnb. Tourner un maximum de contenu en très peu de temps.</p>
                 <ul>
-                  <li>🏠 Location Airbnb adaptée au tournage (good lighting, space, wifi)</li>
-                  <li>🎬 Tourner 40-50 vidéos en 10 jours (batch content strategy)</li>
-                  <li>👥 Collaborations avec autres créateurs = croissance mutuelle</li>
-                  <li>📱 Contenu "Behind the scenes" du trip = engagement</li>
-                  <li>🚀 Résultat : stock de 3 mois de contenu créé</li>
+                  <li>🏠 Airbnb avec bon éclairage naturel, espace de travail confortable et wifi stable</li>
+                  <li>💪 Rythme : 15h de travail par jour possible grâce à l'ambiance</li>
+                  <li>🎬 Production massive en 48-72h : créer du contenu premium en mode batch</li>
+                  <li>👥 Collaborations avec d'autres créateurs pour dynamique + croissance mutuelle</li>
+                  <li>📱 Behind the scenes du trip = engagement maximal</li>
+                  <li>🚀 Résultat : stock de 1-2 mois de contenu créé en un week-end</li>
                 </ul>
               </div>
           </section>
