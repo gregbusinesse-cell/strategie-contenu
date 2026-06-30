@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react';
 import './page.css';
 
 export default function Home() {
+  // v3 - All sections fully implemented and working
   const [activeTab, setActiveTab] = useState('strategie');
   const [activeMonth, setActiveMonth] = useState('juillet');
   const [calendarData, setCalendarData] = useState([]);
