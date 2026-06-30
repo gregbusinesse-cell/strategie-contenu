@@ -4,7 +4,6 @@ import { useState, useEffect } from 'react';
 import './page.css';
 
 export default function Home() {
-  // v2 - with Finance, Ideas, Reunions
   const [activeTab, setActiveTab] = useState('strategie');
   const [activeMonth, setActiveMonth] = useState('juillet');
   const [calendarData, setCalendarData] = useState([]);
@@ -36,6 +35,26 @@ export default function Home() {
       const res = await fetch('/api/reunions');
       const data = await res.json();
       setReunions(data);
+    } catch (err) {
+      console.error('Erreur:', err);
+    }
+  };
+
+  const fetchFinances = async () => {
+    try {
+      const res = await fetch('/api/finances');
+      const data = await res.json();
+      setFinances(data);
+    } catch (err) {
+      console.error('Erreur:', err);
+    }
+  };
+
+  const fetchIdees = async () => {
+    try {
+      const res = await fetch('/api/idees');
+      const data = await res.json();
+      setIdees(data);
     } catch (err) {
       console.error('Erreur:', err);
     }
@@ -73,46 +92,6 @@ export default function Home() {
     }
   };
 
-  const handleImageUpload = async (e, index) => {
-    const file = e.target.files[0];
-    if (!file) return;
-
-    const reader = new FileReader();
-    reader.onload = (event) => {
-      updateCell(index, 'miniature', event.target.result);
-    };
-    reader.readAsDataURL(file);
-  };
-
-  const getCalendarByMonth = (month) => {
-    if (month === 'juillet') {
-      return calendarData.filter(d => d.date.includes('2026-07'));
-    } else if (month === 'aout') {
-      return calendarData.filter(d => d.date.includes('2026-08'));
-    }
-    return [];
-  };
-
-  const fetchFinances = async () => {
-    try {
-      const res = await fetch('/api/finances');
-      const data = await res.json();
-      setFinances(data);
-    } catch (err) {
-      console.error('Erreur:', err);
-    }
-  };
-
-  const fetchIdees = async () => {
-    try {
-      const res = await fetch('/api/idees');
-      const data = await res.json();
-      setIdees(data);
-    } catch (err) {
-      console.error('Erreur:', err);
-    }
-  };
-
   const updateFinance = async (index, field, value) => {
     const updated = [...finances];
     updated[index][field] = value;
@@ -143,6 +122,36 @@ export default function Home() {
     }
   };
 
+  const getCalendarByMonth = (month) => {
+    if (month === 'juillet') {
+      return calendarData.filter(d => d.date.includes('2026-07'));
+    } else if (month === 'aout') {
+      return calendarData.filter(d => d.date.includes('2026-08'));
+    }
+    return [];
+  };
+
+  const handleImageUpload = async (e, index) => {
+    const file = e.target.files[0];
+    if (!file) return;
+
+    const reader = new FileReader();
+    reader.onload = (event) => {
+      updateCell(index, 'miniature', event.target.result);
+    };
+    reader.readAsDataURL(file);
+  };
+
+  const handleImageUploadIdee = async (e, index) => {
+    const file = e.target.files[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = (event) => {
+      updateIdee(index, 'images', [...(idees[index].images || []), event.target.result]);
+    };
+    reader.readAsDataURL(file);
+  };
+
   const startRecording = () => {
     const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
     if (!SpeechRecognition) {
@@ -170,16 +179,6 @@ export default function Home() {
     };
 
     recognition.start();
-  };
-
-  const handleImageUploadIdee = async (e, index) => {
-    const file = e.target.files[0];
-    if (!file) return;
-    const reader = new FileReader();
-    reader.onload = (event) => {
-      updateIdee(index, 'images', [...(idees[index].images || []), event.target.result]);
-    };
-    reader.readAsDataURL(file);
   };
 
   return (
@@ -217,52 +216,22 @@ export default function Home() {
           <section className="strategie-section">
             <h2>🎯 Objectif Global</h2>
             <p>Lancer une production intensive de contenu : <strong>1 vidéo longue par jour + 3+ réels par jour</strong></p>
-            <p>Ratio stratégique : <span className="highlight-blue">50% SaaS / 50% Personal Branding</span> (6-20 juillet) → <span className="highlight-orange">100% SaaS</span> (21 juillet+)</p>
-            <p>Culmination : <span className="highlight-green">Trip production en Airbnb</span> (1-10 août) pour accumuler du contenu à l'avance</p>
           </section>
-
           <section className="strategie-section">
-            <h2>🔴 Phase 1 : Préparation Intensive (1-5 juillet)</h2>
-            <div className="phase-content">
-              <h3>Jeudi 1er juillet</h3>
-              <ul>
-                <li>✅ Vidéo longue #1</li>
-                <li>✅ Minimum 2 shorts</li>
-                <li>✅ 3+ réels (TikTok, Instagram, YouTube)</li>
-              </ul>
-              <h3>Vendredi-Dimanche (2-5 juillet)</h3>
-              <ul>
-                <li>✅ Préparer TOUTES les vidéos pour la semaine du 6-7 juillet (minimum 7 vidéos)</li>
-                <li>✅ Minimum 2 réels par jour</li>
-                <li>✅ Checklist matériel : vérifier que tout a été reçu</li>
-                <li>✅ Préparer le setup complet</li>
-                <li>⚠️ <strong>DEADLINE : Dimanche matin maximum, tout doit être prêt pour lundi</strong></li>
-              </ul>
-            </div>
+            <h2>🔴 Phase 1 : Préparation (1-5 juillet)</h2>
+            <p>Préparer matériel, setup et contenu pour le lancement.</p>
           </section>
-
           <section className="strategie-section">
             <h2>🔵 Phase 2 : Lancement (6-20 juillet)</h2>
-            <p><strong>RATIO : 50% SAAS / 50% PERSONAL BRANDING</strong></p>
-            <div className="phase-content">
-              <h3>Quotidien (À partir du 6 juillet)</h3>
-              <ul>
-                <li>📹 1 vidéo longue par jour</li>
-                <li>✂️ 3+ réels par jour (TikTok, Instagram, YouTube)</li>
-                <li>📱 1 story Instagram par jour (test engagement)</li>
-              </ul>
-            </div>
+            <p>50% SaaS / 50% Personal Branding</p>
           </section>
-
           <section className="strategie-section">
-            <h2>🟠 Phase 3 : Priorité SaaS (21 juillet - Début août)</h2>
-            <p><strong>100% SAAS</strong> - Basculer vers contenu SaaS prioritaire</p>
+            <h2>🟠 Phase 3 : SaaS Focus (21 juil - début août)</h2>
+            <p>100% contenu SaaS + préparer trip Airbnb</p>
           </section>
-
           <section className="strategie-section">
             <h2>🟢 Phase 4 : Production Trip (1-10 août)</h2>
-            <p><strong>Objectif :</strong> 10 jours production INTENSIVE</p>
-            <p><strong>En sortir avec :</strong> 50+ vidéos brutes / 200+ réels en avance</p>
+            <p>10 jours production intensive en Airbnb</p>
           </section>
         </section>
       )}
@@ -358,29 +327,6 @@ export default function Home() {
             {reunions.length === 0 ? (
               <div className="empty-state">
                 <p>Aucune réunion planifiée. Cliquez sur "Ajouter une réunion" pour en créer une.</p>
-                <button className="btn-add-reunion" onClick={async () => {
-                  const newReunion = {
-                    titre: 'Nouvelle réunion',
-                    lieu: '',
-                    dateDebut: '',
-                    dateFin: '',
-                    heureArrivee: '',
-                    heureDepart: '',
-                    airbnbLink: '',
-                    participants: '',
-                    materielPersonnel: '',
-                    materielProfessionnel: '',
-                    activites: '',
-                    notes: ''
-                  };
-                  const updated = [...reunions, newReunion];
-                  setReunions(updated);
-                  await fetch('/api/reunions', {
-                    method: 'PUT',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify(updated)
-                  });
-                }}>➕ Ajouter une réunion</button>
               </div>
             ) : (
               reunions.map((reunion, idx) => (
@@ -442,40 +388,117 @@ export default function Home() {
                   <button className="btn-delete-reunion" onClick={async () => {
                     const updated = reunions.filter((_, i) => i !== idx);
                     setReunions(updated);
-                    await fetch('/api/reunions', {
-                      method: 'PUT',
-                      headers: { 'Content-Type': 'application/json' },
-                      body: JSON.stringify(updated)
-                    });
+                    await fetch('/api/reunions', { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(updated) });
                   }}>🗑️ Supprimer</button>
                 </div>
               ))
             )}
-            {reunions.length > 0 && (
-              <button className="btn-add-reunion" onClick={async () => {
-                const newReunion = {
-                  titre: 'Nouvelle réunion',
-                  lieu: '',
-                  dateDebut: '',
-                  dateFin: '',
-                  heureArrivee: '',
-                  heureDepart: '',
-                  airbnbLink: '',
-                  participants: '',
-                  materielPersonnel: '',
-                  materielProfessionnel: '',
-                  activites: '',
-                  notes: ''
-                };
-                const updated = [...reunions, newReunion];
-                setReunions(updated);
-                await fetch('/api/reunions', {
-                  method: 'PUT',
-                  headers: { 'Content-Type': 'application/json' },
-                  body: JSON.stringify(updated)
-                });
-              }}>➕ Ajouter une réunion</button>
-            )}
+          </div>
+          <button className="btn-add-reunion" onClick={async () => {
+            const newReunion = {
+              titre: 'Nouvelle réunion', lieu: '', dateDebut: '', dateFin: '', heureArrivee: '', heureDepart: '',
+              airbnbLink: '', participants: '', materielPersonnel: '', materielProfessionnel: '', activites: '', notes: ''
+            };
+            const updated = [...reunions, newReunion];
+            setReunions(updated);
+            await fetch('/api/reunions', { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(updated) });
+          }}>➕ Ajouter une réunion</button>
+        </section>
+      )}
+
+      {activeTab === 'idees' && (
+        <section className="tab-content idees-content">
+          <div className="idees-header">
+            <h2>💡 Idées</h2>
+            <p>Toutes les idées de contenu, vidéos, et concepts</p>
+          </div>
+          <div className="idees-list">
+            {idees.map((idee, idx) => (
+              <div key={idx} className="idee-card">
+                <div className="idee-type-badge">{idee.type || 'Idée générale'}</div>
+                <div className="idee-field">
+                  <label>Titre</label>
+                  <input type="text" value={idee.titre} onChange={(e) => updateIdee(idx, 'titre', e.target.value)} placeholder="Titre de l'idée..." />
+                </div>
+                <div className="idee-field">
+                  <label>Description & Concept</label>
+                  <textarea value={idee.description} onChange={(e) => updateIdee(idx, 'description', e.target.value)} placeholder="Explique l'idée en détail..." className="notes-textarea large-textarea" />
+                </div>
+                {idee.type === 'Vidéo' && (
+                  <>
+                    <div className="idee-row">
+                      <div className="idee-field">
+                        <label>Type de contenu</label>
+                        <select value={idee.typeContenu || ''} onChange={(e) => updateIdee(idx, 'typeContenu', e.target.value)}>
+                          <option value="">Sélectionner</option>
+                          <option value="Contenu">Contenu</option>
+                          <option value="Concept">Concept (à développer)</option>
+                          <option value="Test">Test</option>
+                        </select>
+                      </div>
+                      <div className="idee-field">
+                        <label>Durée estimée</label>
+                        <input type="text" value={idee.duree || ''} onChange={(e) => updateIdee(idx, 'duree', e.target.value)} placeholder="Ex: 15 min, 5 min..." />
+                      </div>
+                    </div>
+                  </>
+                )}
+                <div className="idee-field">
+                  <label>Photos & Références</label>
+                  <div className="images-container">
+                    {(idee.images || []).map((img, imgIdx) => (
+                      <div key={imgIdx} className="image-item">
+                        <img src={img} alt="référence" />
+                        <button onClick={() => updateIdee(idx, 'images', idee.images.filter((_, i) => i !== imgIdx))}>✕</button>
+                      </div>
+                    ))}
+                  </div>
+                  <label className="file-upload-label">
+                    📁 Ajouter une image
+                    <input type="file" accept="image/*" onChange={(e) => handleImageUploadIdee(e, idx)} />
+                  </label>
+                </div>
+                <div className="audio-section">
+                  <label>🎤 Enregistrer des notes vocales</label>
+                  <div className="audio-controls">
+                    <button className={`btn-record ${isRecording ? 'recording' : ''}`} onClick={startRecording}>
+                      {isRecording ? '🔴 Enregistrement...' : '🎤 Démarrer'}
+                    </button>
+                  </div>
+                  {transcript && (
+                    <div className="transcript-box">
+                      <p><strong>Transcription :</strong></p>
+                      <p>{transcript}</p>
+                      <button onClick={() => {
+                        updateIdee(idx, 'notes', (idee.notes || '') + '\n' + transcript);
+                        setTranscript('');
+                      }}>✅ Ajouter à la description</button>
+                    </div>
+                  )}
+                </div>
+                <div className="idee-field">
+                  <label>Notes</label>
+                  <textarea value={idee.notes || ''} onChange={(e) => updateIdee(idx, 'notes', e.target.value)} placeholder="Notes supplémentaires..." className="notes-textarea" />
+                </div>
+                <button className="btn-delete-idee" onClick={async () => {
+                  const updated = idees.filter((_, i) => i !== idx);
+                  setIdees(updated);
+                  await fetch('/api/idees', { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(updated) });
+                }}>🗑️ Supprimer</button>
+              </div>
+            ))}
+          </div>
+          <div className="add-idee-buttons">
+            <button className="btn-add-idee" onClick={async () => {
+              const updated = [...idees, { titre: '', type: 'Idée générale', description: '', images: [], notes: '' }];
+              setIdees(updated);
+              await fetch('/api/idees', { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(updated) });
+            }}>➕ Ajouter une idée générale</button>
+            <button className="btn-add-idee btn-add-video" onClick={async () => {
+              const updated = [...idees, { titre: '', type: 'Vidéo', description: '', typeContenu: '', duree: '', images: [], notes: '' }];
+              setIdees(updated);
+              await fetch('/api/idees', { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(updated) });
+            }}>🎬 Ajouter une idée de vidéo</button>
           </div>
         </section>
       )}
@@ -509,20 +532,20 @@ export default function Home() {
               <tbody>
                 {finances.map((item, idx) => (
                   <tr key={idx}>
-                    <td><input type="text" value={item.produit} onChange={(e) => updateFinance(idx, 'produit', e.target.value)} placeholder="Produit..." /></td>
-                    <td><input type="number" value={item.quantite} onChange={(e) => updateFinance(idx, 'quantite', e.target.value)} placeholder="Qté" /></td>
-                    <td><input type="number" value={item.prixUnitaire} onChange={(e) => updateFinance(idx, 'prixUnitaire', e.target.value)} placeholder="€" /></td>
+                    <td><input type="text" value={item.produit || ''} onChange={(e) => updateFinance(idx, 'produit', e.target.value)} placeholder="Produit..." /></td>
+                    <td><input type="number" value={item.quantite || ''} onChange={(e) => updateFinance(idx, 'quantite', e.target.value)} placeholder="Qté" /></td>
+                    <td><input type="number" value={item.prixUnitaire || ''} onChange={(e) => updateFinance(idx, 'prixUnitaire', e.target.value)} placeholder="€" /></td>
                     <td className="total-cell">€{(parseFloat(item.prixUnitaire || 0) * parseInt(item.quantite || 0)).toFixed(2)}</td>
                     <td>
-                      <select value={item.statut} onChange={(e) => updateFinance(idx, 'statut', e.target.value)}>
+                      <select value={item.statut || 'À commander'} onChange={(e) => updateFinance(idx, 'statut', e.target.value)}>
                         <option>À commander</option>
                         <option>Commandé</option>
                         <option>Reçu</option>
                       </select>
                     </td>
-                    <td><input type="text" value={item.fournisseur} onChange={(e) => updateFinance(idx, 'fournisseur', e.target.value)} placeholder="Fournisseur..." /></td>
-                    <td><input type="url" value={item.lien} onChange={(e) => updateFinance(idx, 'lien', e.target.value)} placeholder="https://..." /></td>
-                    <td><textarea value={item.notes} onChange={(e) => updateFinance(idx, 'notes', e.target.value)} placeholder="Notes..." className="notes-textarea" /></td>
+                    <td><input type="text" value={item.fournisseur || ''} onChange={(e) => updateFinance(idx, 'fournisseur', e.target.value)} placeholder="Fournisseur..." /></td>
+                    <td><input type="url" value={item.lien || ''} onChange={(e) => updateFinance(idx, 'lien', e.target.value)} placeholder="https://..." /></td>
+                    <td><textarea value={item.notes || ''} onChange={(e) => updateFinance(idx, 'notes', e.target.value)} placeholder="Notes..." className="notes-textarea" /></td>
                   </tr>
                 ))}
               </tbody>
@@ -533,109 +556,6 @@ export default function Home() {
             setFinances(updated);
             await fetch('/api/finances', { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(updated) });
           }}>➕ Ajouter un article</button>
-        </section>
-      )}
-
-      {activeTab === 'idees' && (
-        <section className="tab-content idees-content">
-          <div className="idees-header">
-            <h2>💡 Idées</h2>
-            <p>Toutes les idées de contenu, vidéos, et concepts</p>
-          </div>
-          <div className="idees-list">
-            {idees.map((idee, idx) => (
-              <div key={idx} className="idee-card">
-                <div className="idee-type-badge">{idee.type || 'Idée générale'}</div>
-                <div className="idee-field">
-                  <label>Titre</label>
-                  <input type="text" value={idee.titre} onChange={(e) => updateIdee(idx, 'titre', e.target.value)} placeholder="Titre de l'idée..." />
-                </div>
-
-                <div className="idee-field">
-                  <label>Description & Concept</label>
-                  <textarea value={idee.description} onChange={(e) => updateIdee(idx, 'description', e.target.value)} placeholder="Explique l'idée en détail..." className="notes-textarea large-textarea" />
-                </div>
-
-                {idee.type === 'Vidéo' && (
-                  <>
-                    <div className="idee-row">
-                      <div className="idee-field">
-                        <label>Type de contenu</label>
-                        <select value={idee.typeContenu} onChange={(e) => updateIdee(idx, 'typeContenu', e.target.value)}>
-                          <option value="">Sélectionner</option>
-                          <option value="Contenu">Contenu</option>
-                          <option value="Concept">Concept (à développer)</option>
-                          <option value="Test">Test</option>
-                        </select>
-                      </div>
-                      <div className="idee-field">
-                        <label>Durée estimée</label>
-                        <input type="text" value={idee.duree} onChange={(e) => updateIdee(idx, 'duree', e.target.value)} placeholder="Ex: 15 min, 5 min..." />
-                      </div>
-                    </div>
-                  </>
-                )}
-
-                <div className="idee-field">
-                  <label>Photos & Références</label>
-                  <div className="images-container">
-                    {(idee.images || []).map((img, imgIdx) => (
-                      <div key={imgIdx} className="image-item">
-                        <img src={img} alt="référence" />
-                        <button onClick={() => updateIdee(idx, 'images', idee.images.filter((_, i) => i !== imgIdx))}>✕</button>
-                      </div>
-                    ))}
-                  </div>
-                  <label className="file-upload-label">
-                    📁 Ajouter une image
-                    <input type="file" accept="image/*" onChange={(e) => handleImageUploadIdee(e, idx)} />
-                  </label>
-                </div>
-
-                <div className="audio-section">
-                  <label>🎤 Enregistrer des notes vocales</label>
-                  <div className="audio-controls">
-                    <button className={`btn-record ${isRecording ? 'recording' : ''}`} onClick={startRecording}>
-                      {isRecording ? '🔴 Enregistrement...' : '🎤 Démarrer'}
-                    </button>
-                  </div>
-                  {transcript && (
-                    <div className="transcript-box">
-                      <p><strong>Transcription :</strong></p>
-                      <p>{transcript}</p>
-                      <button onClick={() => {
-                        updateIdee(idx, 'notes', (idee.notes || '') + '\n' + transcript);
-                        setTranscript('');
-                      }}>✅ Ajouter à la description</button>
-                    </div>
-                  )}
-                </div>
-
-                <div className="idee-field">
-                  <label>Notes</label>
-                  <textarea value={idee.notes} onChange={(e) => updateIdee(idx, 'notes', e.target.value)} placeholder="Notes supplémentaires..." className="notes-textarea" />
-                </div>
-
-                <button className="btn-delete-idee" onClick={async () => {
-                  const updated = idees.filter((_, i) => i !== idx);
-                  setIdees(updated);
-                  await fetch('/api/idees', { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(updated) });
-                }}>🗑️ Supprimer</button>
-              </div>
-            ))}
-          </div>
-          <div className="add-idee-buttons">
-            <button className="btn-add-idee" onClick={async () => {
-              const updated = [...idees, { titre: '', type: 'Idée générale', description: '', images: [], notes: '' }];
-              setIdees(updated);
-              await fetch('/api/idees', { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(updated) });
-            }}>➕ Ajouter une idée générale</button>
-            <button className="btn-add-idee btn-add-video" onClick={async () => {
-              const updated = [...idees, { titre: '', type: 'Vidéo', description: '', typeContenu: '', duree: '', images: [], notes: '' }];
-              setIdees(updated);
-              await fetch('/api/idees', { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(updated) });
-            }}>🎬 Ajouter une idée de vidéo</button>
-          </div>
         </section>
       )}
     </div>
