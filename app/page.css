@@ -149,6 +149,80 @@ header .subtitle {
   border-left: 4px solid #667eea;
 }
 
+.strategie-phase {
+  margin-bottom: 20px;
+  padding: 20px;
+  background: #f9f9f9;
+  border-left: 4px solid #667eea;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.strategie-phase:hover {
+  background: #f0f0f0;
+  transform: translateX(5px);
+}
+
+.phase-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.phase-header h2 {
+  margin: 0;
+  font-size: 1.4em;
+  color: #1F4E78;
+  flex: 1;
+}
+
+.expand-icon {
+  font-size: 1.2em;
+  color: #667eea;
+  font-weight: bold;
+  margin-left: 15px;
+  transition: transform 0.3s ease;
+}
+
+.phase-details {
+  margin-top: 15px;
+  padding-top: 15px;
+  border-top: 1px solid #ddd;
+  animation: slideDown 0.3s ease;
+}
+
+.phase-details p {
+  margin: 10px 0;
+  color: #333;
+  line-height: 1.6;
+  font-size: 1em;
+}
+
+.phase-details ul {
+  margin: 15px 0 0 20px;
+  padding: 0;
+  list-style: none;
+}
+
+.phase-details li {
+  margin: 8px 0;
+  color: #555;
+  line-height: 1.5;
+  font-size: 0.95em;
+}
+
+@keyframes slideDown {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
 .highlight-blue {
   background: #E6F2FF;
   padding: 2px 6px;

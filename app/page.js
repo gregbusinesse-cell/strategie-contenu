@@ -13,6 +13,7 @@ export default function Home() {
   const [idees, setIdees] = useState([]);
   const [isRecording, setIsRecording] = useState(false);
   const [transcript, setTranscript] = useState('');
+  const [expandedPhase, setExpandedPhase] = useState(null);
 
   useEffect(() => {
     fetchCalendar();
@@ -218,21 +219,80 @@ export default function Home() {
             <h2>🎯 Objectif Global</h2>
             <p>Lancer une production intensive de contenu : <strong>1 vidéo longue par jour + 3+ réels par jour</strong></p>
           </section>
-          <section className="strategie-section">
-            <h2>🔴 Phase 1 : Préparation (1-5 juillet)</h2>
-            <p>Préparer matériel, setup et contenu pour le lancement.</p>
+
+          <section className="strategie-phase" onClick={() => setExpandedPhase(expandedPhase === 'phase1' ? null : 'phase1')}>
+            <div className="phase-header">
+              <h2>🔴 Phase 1 : Préparation (1-5 juillet)</h2>
+              <span className="expand-icon">{expandedPhase === 'phase1' ? '▼' : '▶'}</span>
+            </div>
+            {expandedPhase === 'phase1' && (
+              <div className="phase-details">
+                <p><strong>Objectif :</strong> Préparer tout le matériel, setup technique et contenu en brouillon pour démarrer la production intensive.</p>
+                <ul>
+                  <li>✓ Tester caméra, micro, lumières, décor</li>
+                  <li>✓ Créer 20-30 idées de vidéos longues</li>
+                  <li>✓ Préparer 50+ idées de réels (TikTok, Instagram, YouTube Shorts)</li>
+                  <li>✓ Organiser l'espace de travail/tournage</li>
+                  <li>✓ Préparer graphiques, templates, musiques</li>
+                </ul>
+              </div>
+            )}
           </section>
-          <section className="strategie-section">
-            <h2>🔵 Phase 2 : Lancement (6-20 juillet)</h2>
-            <p>50% SaaS / 50% Personal Branding</p>
+
+          <section className="strategie-phase" onClick={() => setExpandedPhase(expandedPhase === 'phase2' ? null : 'phase2')}>
+            <div className="phase-header">
+              <h2>🔵 Phase 2 : Lancement (6-20 juillet)</h2>
+              <span className="expand-icon">{expandedPhase === 'phase2' ? '▼' : '▶'}</span>
+            </div>
+            {expandedPhase === 'phase2' && (
+              <div className="phase-details">
+                <p><strong>Objectif :</strong> 50% contenu SaaS (stratégie business) + 50% Personal Branding (vlogs, lifestyle).</p>
+                <ul>
+                  <li>📹 1 vidéo longue/jour (environ 15-30 min)</li>
+                  <li>📱 3-5 réels/jour (30-60 sec)</li>
+                  <li>💼 Vidéos SaaS : tutoriels, fonctionnalités, cas d'usage</li>
+                  <li>👤 Contenu PB : coulisses, journée type, tips perso</li>
+                  <li>📊 Analyser engagement et adapter</li>
+                </ul>
+              </div>
+            )}
           </section>
-          <section className="strategie-section">
-            <h2>🟠 Phase 3 : SaaS Focus (21 juil - début août)</h2>
-            <p>100% contenu SaaS + préparer trip Airbnb</p>
+
+          <section className="strategie-phase" onClick={() => setExpandedPhase(expandedPhase === 'phase3' ? null : 'phase3')}>
+            <div className="phase-header">
+              <h2>🟠 Phase 3 : SaaS Focus (21 juil - début août)</h2>
+              <span className="expand-icon">{expandedPhase === 'phase3' ? '▼' : '▶'}</span>
+            </div>
+            {expandedPhase === 'phase3' && (
+              <div className="phase-details">
+                <p><strong>Objectif :</strong> 100% contenu SaaS + commencer à préparer le trip Airbnb (logistique, équipement).</p>
+                <ul>
+                  <li>🎯 Toutes les vidéos centrées sur la stratégie, croissance, monetization</li>
+                  <li>📅 Préparer le trip : choisir Airbnb, réserver, faire liste équipement</li>
+                  <li>🎬 Préparer scénarios pour le trip (tutoriels en situation, vlogs informatifs)</li>
+                  <li>👥 Potentiellement inviter d'autres créateurs pour la production</li>
+                </ul>
+              </div>
+            )}
           </section>
-          <section className="strategie-section">
-            <h2>🟢 Phase 4 : Production Trip (1-10 août)</h2>
-            <p>10 jours production intensive en Airbnb</p>
+
+          <section className="strategie-phase" onClick={() => setExpandedPhase(expandedPhase === 'phase4' ? null : 'phase4')}>
+            <div className="phase-header">
+              <h2>🟢 Phase 4 : Production Trip (1-10 août)</h2>
+              <span className="expand-icon">{expandedPhase === 'phase4' ? '▼' : '▶'}</span>
+            </div>
+            {expandedPhase === 'phase4' && (
+              <div className="phase-details">
+                <p><strong>Objectif :</strong> 10 jours de production intensive en Airbnb avec équipe/collaborateurs pour créer du contenu massif.</p>
+                <ul>
+                  <li>🏠 Location Airbnb adaptée au tournage (good lighting, space, wifi)</li>
+                  <li>🎬 Tourner 40-50 vidéos en 10 jours (batch content strategy)</li>
+                  <li>👥 Collaborations avec autres créateurs = croissance mutuelle</li>
+                  <li>📱 Contenu "Behind the scenes" du trip = engagement</li>
+                  <li>🚀 Résultat : stock de 3 mois de contenu créé</li>
+                </ul>
+              </div>
+            )}
           </section>
         </section>
       )}
