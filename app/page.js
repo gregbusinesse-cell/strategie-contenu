@@ -71,7 +71,7 @@ export default function Home() {
 
   const fetchPlan = async () => {
     try {
-      console.log('📥 Loading plan data...');
+      console.log('📥 Loading plan data from Supabase...');
       // Load from Supabase (source of truth)
       const supabaseData = await fetchPlanFromSupabase();
 
