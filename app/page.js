@@ -514,19 +514,49 @@ export default function Home() {
               </span>
             )}
           </div>
-          <p style={{ marginBottom: '30px', clear: 'both' }}>Planifiez votre mois jour par jour</p>
+          <p style={{ marginBottom: '30px', clear: 'both' }}>Planifiez par semaine (Lun-Dim)</p>
 
-          <div className="plan-calendar">
-            {Array.from({ length: 31 }, (_, i) => i + 1).map((day) => {
-              const dayData = planData[day] || { title: '', description: '', completed: false };
+          <div style={{ overflowX: 'auto' }}>
+            {/* Week headers */}
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(7, 1fr)', gap: '8px', marginBottom: '20px' }}>
+              {['Lun', 'Mar', 'Mer', 'Jeu', 'Ven', 'Sam', 'Dim'].map(day => (
+                <div key={day} style={{ textAlign: 'center', fontWeight: 'bold', fontSize: '12px', color: '#666' }}>
+                  {day}
+                </div>
+              ))}
+            </div>
+
+            {/* Week 1 (Wed-Sun) */}
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(7, 1fr)', gap: '8px', marginBottom: '20px' }}>
+              {Array.from({ length: 7 }, (_, i) => {
+                const day = i < 2 ? null : i - 1; // Wed (1) onwards
+                if (!day) return <div key={`empty-${i}`} />;
+                const dayData = planData[day] || { title: '', description: '', completed: false };
+                return (
+                  <div key={day} className={`plan-day ${selectedDay === day ? 'selected' : ''} ${dayData.completed ? 'completed' : ''}`} onClick={() => setSelectedDay(selectedDay === day ? null : day)}>
+                    <div className="day-number">{day}</div>
+                    <div className="day-title">{dayData.title ? dayData.title.substring(0, 15) : '...'}</div>
+                  </div>
+                );
+              })}
+            </div>
+
+            {/* Weeks 2-5 */}
+            {Array.from({ length: 4 }, (_, weekIdx) => {
+              const startDay = 6 + weekIdx * 7;
               return (
-                <div
-                  key={day}
-                  className={`plan-day ${selectedDay === day ? 'selected' : ''} ${dayData.completed ? 'completed' : ''}`}
-                  onClick={() => setSelectedDay(selectedDay === day ? null : day)}
-                >
-                  <div className="day-number">{day}</div>
-                  <div className="day-title">{dayData.title ? dayData.title.substring(0, 20) : '...'}</div>
+                <div key={`week-${weekIdx + 2}`} style={{ display: 'grid', gridTemplateColumns: 'repeat(7, 1fr)', gap: '8px', marginBottom: '20px' }}>
+                  {Array.from({ length: 7 }, (_, dayIdx) => {
+                    const day = startDay + dayIdx;
+                    if (day > 31) return <div key={`empty-${day}`} />;
+                    const dayData = planData[day] || { title: '', description: '', completed: false };
+                    return (
+                      <div key={day} className={`plan-day ${selectedDay === day ? 'selected' : ''} ${dayData.completed ? 'completed' : ''}`} onClick={() => setSelectedDay(selectedDay === day ? null : day)}>
+                        <div className="day-number">{day}</div>
+                        <div className="day-title">{dayData.title ? dayData.title.substring(0, 15) : '...'}</div>
+                      </div>
+                    );
+                  })}
                 </div>
               );
             })}
