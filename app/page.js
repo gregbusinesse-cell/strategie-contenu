@@ -17,6 +17,7 @@ export default function Home() {
   const [selectedDay, setSelectedDay] = useState(null);
   const [isPlanRecording, setIsPlanRecording] = useState(false);
   const [planTranscript, setPlanTranscript] = useState('');
+  const [planRecognition, setPlanRecognition] = useState(null);
 
   useEffect(() => {
     fetchCalendar();
@@ -68,9 +69,15 @@ export default function Home() {
 
   const fetchPlan = async () => {
     try {
-      const res = await fetch('/api/plan');
-      const data = await res.json();
-      setPlanData(data);
+      const stored = localStorage.getItem('planData');
+      if (stored) {
+        setPlanData(JSON.parse(stored));
+      } else {
+        const res = await fetch('/api/plan');
+        const data = await res.json();
+        setPlanData(data);
+        localStorage.setItem('planData', JSON.stringify(data));
+      }
     } catch (err) {
       console.error('Erreur:', err);
     }
@@ -79,6 +86,7 @@ export default function Home() {
   const updatePlan = async (dayNum, dayData) => {
     const updated = { ...planData, [dayNum]: dayData };
     setPlanData(updated);
+    localStorage.setItem('planData', JSON.stringify(updated));
     try {
       await fetch('/api/plan', {
         method: 'PUT',
@@ -212,9 +220,15 @@ export default function Home() {
   };
 
   const startPlanRecording = () => {
+    if (isPlanRecording && planRecognition) {
+      planRecognition.stop();
+      setIsPlanRecording(false);
+      return;
+    }
+
     const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
     if (!SpeechRecognition) {
-      alert('La reconnaissance vocale n\'est pas supportée par votre navigateur');
+      console.error('La reconnaissance vocale n\'est pas supportée');
       return;
     }
 
@@ -225,40 +239,28 @@ export default function Home() {
 
     recognition.onstart = () => {
       setIsPlanRecording(true);
-      console.log('Enregistrement démarré');
     };
 
     recognition.onend = () => {
       setIsPlanRecording(false);
-      console.log('Enregistrement terminé');
     };
 
     recognition.onerror = (event) => {
-      console.error('Erreur:', event.error);
-      alert('Erreur microphone: ' + event.error);
+      console.error('Erreur microphone:', event.error);
       setIsPlanRecording(false);
     };
 
     recognition.onresult = (event) => {
-      console.log('Résultat reçu:', event.results.length);
-      let interimTranscript = '';
       for (let i = event.resultIndex; i < event.results.length; i++) {
         const transcript = event.results[i][0].transcript;
-        console.log('Transcription:', transcript, 'Final:', event.results[i].isFinal);
         if (event.results[i].isFinal) {
           setPlanTranscript(prev => prev + transcript + ' ');
-        } else {
-          interimTranscript += transcript;
         }
       }
     };
 
-    try {
-      recognition.start();
-    } catch (err) {
-      console.error('Erreur start:', err);
-      alert('Erreur lors du démarrage: ' + err.message);
-    }
+    setPlanRecognition(recognition);
+    recognition.start();
   };
 
   return (
@@ -467,7 +469,7 @@ export default function Home() {
 
           {selectedDay && (
             <div className="plan-detail">
-              <h3>📅 Juillet {selectedDay}</h3>
+              <h3>📅 Juillet {selectedDay} - {planData[selectedDay]?.title || 'Sans titre'}</h3>
               <input
                 type="text"
                 placeholder="Titre du jour"
@@ -478,8 +480,13 @@ export default function Home() {
               <textarea
                 placeholder="Tâches et détails..."
                 value={planData[selectedDay]?.description || ''}
-                onChange={(e) => updatePlan(selectedDay, { ...planData[selectedDay], description: e.target.value })}
+                onChange={(e) => {
+                  e.target.style.height = 'auto';
+                  e.target.style.height = e.target.scrollHeight + 'px';
+                  updatePlan(selectedDay, { ...planData[selectedDay], description: e.target.value });
+                }}
                 className="plan-textarea"
+                style={{ minHeight: '100px', resize: 'none' }}
               />
 
               <div className="audio-section">
