@@ -471,40 +471,23 @@ export default function Home() {
 
       {activeTab === 'plan' && (
         <section className="tab-content plan-content">
-          <div className="plan-header">
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-              <div>
-                <h2>📋 Plan Juillet 2026</h2>
-                <p>Planifiez votre mois jour par jour</p>
-              </div>
-              <div style={{ textAlign: 'right' }}>
-                <button
-                  onClick={syncPlanFromServer}
-                  style={{
-                    padding: '8px 16px',
-                    backgroundColor: planSyncStatus === 'syncing' ? '#667eea' : '#1F4E78',
-                    color: 'white',
-                    border: 'none',
-                    borderRadius: '6px',
-                    cursor: planSyncStatus === 'syncing' ? 'wait' : 'pointer',
-                    fontSize: '14px',
-                    marginBottom: '8px'
-                  }}
-                  disabled={planSyncStatus === 'syncing'}
-                >
-                  {planSyncStatus === 'syncing' && '🔄 Synchronisation...'}
-                  {planSyncStatus === 'synced' && '✅ À jour'}
-                  {planSyncStatus === 'saved' && '🔗 Voir changements de ton pote'}
-                  {planSyncStatus === 'saving' && '💾 Sauvegarde...'}
-                  {planSyncStatus === 'error' && '⚠️ Erreur sync'}
-                </button>
-                <p style={{ fontSize: '12px', color: '#666', margin: '4px 0' }}>
-                  {planSyncStatus === 'saved' && '✓ Tout sauvegardé'}
-                  {planSyncStatus === 'saving' && 'Sauvegarde en cours...'}
-                  {planSyncStatus === 'synced' && 'Synchronisé!'}
-                </p>
-              </div>
+          <div className="plan-header-wrapper">
+            <div className="plan-header">
+              <h2>📋 Plan Juillet 2026</h2>
+              <p>Planifiez votre mois jour par jour</p>
             </div>
+            <button
+              onClick={syncPlanFromServer}
+              className="plan-sync-btn"
+              disabled={planSyncStatus === 'syncing'}
+              title="Synchroniser les changements de ton pote"
+            >
+              {planSyncStatus === 'syncing' && '🔄 Sync...'}
+              {planSyncStatus === 'synced' && '✅'}
+              {planSyncStatus === 'saved' && '🔗 Sync'}
+              {planSyncStatus === 'saving' && '💾'}
+              {planSyncStatus === 'error' && '⚠️'}
+            </button>
           </div>
 
           <div className="plan-calendar">
