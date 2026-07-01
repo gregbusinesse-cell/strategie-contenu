@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useRef } from 'react';
 import './page.css';
-import { fetchPlanFromSupabase, savePlanToSupabase, syncAllPlanData } from '@/lib/supabase';
+import { fetchPlanFromSupabase, savePlanToSupabase, syncAllPlanData, refreshPlanData } from '@/lib/supabase';
 
 export default function Home() {
   // v4 - Ultra-simplified UX for brainstorming & organization
@@ -71,14 +71,27 @@ export default function Home() {
 
   const fetchPlan = async () => {
     try {
-      const data = await fetchPlanFromSupabase();
-      setPlanData(data);
-      localStorage.setItem('planData', JSON.stringify(data));
+      console.log('📥 Loading plan data...');
+      // Load from Supabase (source of truth)
+      const supabaseData = await fetchPlanFromSupabase();
+
+      // If we have local data, merge it
+      const localStored = localStorage.getItem('planData');
+      let finalData = supabaseData;
+      if (localStored) {
+        const localData = JSON.parse(localStored);
+        finalData = { ...supabaseData, ...localData };
+      }
+
+      setPlanData(finalData);
+      localStorage.setItem('planData', JSON.stringify(finalData));
+      console.log('✓ Plan data loaded');
     } catch (err) {
       console.error('Erreur fetch plan:', err);
       const stored = localStorage.getItem('planData');
       if (stored) {
         setPlanData(JSON.parse(stored));
+        console.log('⚠️ Using cached data from localStorage');
       }
     }
   };
@@ -86,23 +99,26 @@ export default function Home() {
   const syncPlanFromServer = async () => {
     setPlanSyncStatus('syncing');
     try {
-      // Sync local data to Supabase
-      const synced = await syncAllPlanData(planData);
-      if (synced) {
-        // Then fetch latest from Supabase
-        const serverData = await fetchPlanFromSupabase();
-        const mergedData = { ...planData, ...serverData };
-        setPlanData(mergedData);
-        localStorage.setItem('planData', JSON.stringify(mergedData));
-        setPlanSyncStatus('synced');
-        setTimeout(() => setPlanSyncStatus('saved'), 2000);
-      } else {
-        setPlanSyncStatus('error');
+      console.log('🔄 Synchronisation complète...');
+
+      // Step 1: Push all local changes to Supabase
+      const pushSuccess = await syncAllPlanData(planData);
+      if (!pushSuccess) {
+        console.warn('⚠️ Some items failed to sync');
       }
+
+      // Step 2: Refresh from Supabase to get latest + merged data
+      const refreshedData = await refreshPlanData(planData);
+      setPlanData(refreshedData);
+      localStorage.setItem('planData', JSON.stringify(refreshedData));
+
+      setPlanSyncStatus('synced');
+      console.log('✓ Synchronisation complète!');
+      setTimeout(() => setPlanSyncStatus('saved'), 2000);
     } catch (err) {
       console.error('Erreur sync:', err);
       setPlanSyncStatus('error');
-      setTimeout(() => setPlanSyncStatus('saved'), 2000);
+      setTimeout(() => setPlanSyncStatus('saved'), 3000);
     }
   };
 
