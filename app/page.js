@@ -221,14 +221,30 @@ export default function Home() {
     const recognition = new SpeechRecognition();
     recognition.lang = 'fr-FR';
     recognition.continuous = true;
+    recognition.interimResults = true;
 
-    recognition.onstart = () => setIsPlanRecording(true);
-    recognition.onend = () => setIsPlanRecording(false);
+    recognition.onstart = () => {
+      setIsPlanRecording(true);
+      console.log('Enregistrement démarré');
+    };
+
+    recognition.onend = () => {
+      setIsPlanRecording(false);
+      console.log('Enregistrement terminé');
+    };
+
+    recognition.onerror = (event) => {
+      console.error('Erreur:', event.error);
+      alert('Erreur microphone: ' + event.error);
+      setIsPlanRecording(false);
+    };
 
     recognition.onresult = (event) => {
+      console.log('Résultat reçu:', event.results.length);
       let interimTranscript = '';
       for (let i = event.resultIndex; i < event.results.length; i++) {
         const transcript = event.results[i][0].transcript;
+        console.log('Transcription:', transcript, 'Final:', event.results[i].isFinal);
         if (event.results[i].isFinal) {
           setPlanTranscript(prev => prev + transcript + ' ');
         } else {
@@ -237,7 +253,12 @@ export default function Home() {
       }
     };
 
-    recognition.start();
+    try {
+      recognition.start();
+    } catch (err) {
+      console.error('Erreur start:', err);
+      alert('Erreur lors du démarrage: ' + err.message);
+    }
   };
 
   return (
