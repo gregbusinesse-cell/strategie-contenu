@@ -21,6 +21,15 @@ export default function Home() {
   const [planRecognition, setPlanRecognition] = useState(null);
   const [planSyncStatus, setPlanSyncStatus] = useState('saved');
 
+  // Auto-resize textarea to fit content
+  useEffect(() => {
+    const textarea = document.querySelector('.plan-textarea');
+    if (textarea) {
+      textarea.style.height = 'auto';
+      textarea.style.height = textarea.scrollHeight + 'px';
+    }
+  }, [selectedDay, planData]);
+
   useEffect(() => {
     fetchCalendar();
     fetchReunions();

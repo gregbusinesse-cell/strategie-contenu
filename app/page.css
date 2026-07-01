@@ -623,7 +623,6 @@ header .subtitle {
 .plan-textarea {
   width: 100%;
   min-height: 100px;
-  max-height: none;
   padding: 12px;
   border: 1px solid #ddd;
   border-radius: 8px;
@@ -635,6 +634,7 @@ header .subtitle {
   line-height: 1.5;
   word-wrap: break-word;
   white-space: pre-wrap;
+  height: auto;
 }
 
 .plan-textarea:focus {
