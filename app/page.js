@@ -471,15 +471,26 @@ export default function Home() {
 
       {activeTab === 'plan' && (
         <section className="tab-content plan-content">
-          <div className="plan-header-wrapper">
-            <div className="plan-header">
-              <h2>📋 Plan Juillet 2026</h2>
-              <p>Planifiez votre mois jour par jour</p>
-            </div>
-            <button onClick={syncPlanFromServer} className="plan-sync-btn">
+          <div style={{ marginBottom: '20px' }}>
+            <h2 style={{ display: 'inline-block', marginRight: '20px' }}>📋 Plan Juillet 2026</h2>
+            <button
+              onClick={syncPlanFromServer}
+              style={{
+                padding: '10px 16px',
+                background: '#1F4E78',
+                color: 'white',
+                border: 'none',
+                borderRadius: '6px',
+                cursor: 'pointer',
+                fontSize: '14px',
+                display: 'inline-block',
+                verticalAlign: 'middle'
+              }}
+            >
               🔗 Synchroniser
             </button>
           </div>
+          <p style={{ marginBottom: '30px', clear: 'both' }}>Planifiez votre mois jour par jour</p>
 
           <div className="plan-calendar">
             {Array.from({ length: 31 }, (_, i) => i + 1).map((day) => {
