@@ -492,6 +492,13 @@ header .subtitle {
   border-bottom: 2px solid #eee;
 }
 
+.plan-header > div {
+  display: flex !important;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 20px;
+}
+
 .plan-header h2 {
   font-size: 1.8em;
   color: #1F4E78;
