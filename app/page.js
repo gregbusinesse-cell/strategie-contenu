@@ -13,12 +13,15 @@ export default function Home() {
   const [idees, setIdees] = useState([]);
   const [isRecording, setIsRecording] = useState(false);
   const [transcript, setTranscript] = useState('');
+  const [planData, setPlanData] = useState({});
+  const [selectedDay, setSelectedDay] = useState(null);
 
   useEffect(() => {
     fetchCalendar();
     fetchReunions();
     fetchFinances();
     fetchIdees();
+    fetchPlan();
   }, []);
 
   const fetchCalendar = async () => {
@@ -58,6 +61,30 @@ export default function Home() {
       setIdees(data);
     } catch (err) {
       console.error('Erreur:', err);
+    }
+  };
+
+  const fetchPlan = async () => {
+    try {
+      const res = await fetch('/api/plan');
+      const data = await res.json();
+      setPlanData(data);
+    } catch (err) {
+      console.error('Erreur:', err);
+    }
+  };
+
+  const updatePlan = async (dayNum, dayData) => {
+    const updated = { ...planData, [dayNum]: dayData };
+    setPlanData(updated);
+    try {
+      await fetch('/api/plan', {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(updated)
+      });
+    } catch (err) {
+      console.error(err);
     }
   };
 
@@ -197,6 +224,10 @@ export default function Home() {
         <button className={`tab-btn ${activeTab === 'calendrier' ? 'active' : ''}`}
           onClick={() => setActiveTab('calendrier')}>
           📅 Calendrier
+        </button>
+        <button className={`tab-btn ${activeTab === 'plan' ? 'active' : ''}`}
+          onClick={() => setActiveTab('plan')}>
+          📋 Plan
         </button>
         <button className={`tab-btn ${activeTab === 'reunions' ? 'active' : ''}`}
           onClick={() => setActiveTab('reunions')}>
@@ -356,6 +387,58 @@ export default function Home() {
               </tbody>
             </table>
           </div>
+        </section>
+      )}
+
+      {activeTab === 'plan' && (
+        <section className="tab-content plan-content">
+          <div className="plan-header">
+            <h2>📋 Plan Juillet 2026</h2>
+            <p>Planifiez votre mois jour par jour</p>
+          </div>
+
+          <div className="plan-calendar">
+            {Array.from({ length: 31 }, (_, i) => i + 1).map((day) => {
+              const dayData = planData[day] || { title: '', tasks: [], completed: false };
+              return (
+                <div
+                  key={day}
+                  className={`plan-day ${selectedDay === day ? 'selected' : ''} ${dayData.completed ? 'completed' : ''}`}
+                  onClick={() => setSelectedDay(selectedDay === day ? null : day)}
+                >
+                  <div className="day-number">{day}</div>
+                  <div className="day-title">{dayData.title ? dayData.title.substring(0, 20) : '...'}</div>
+                </div>
+              );
+            })}
+          </div>
+
+          {selectedDay && (
+            <div className="plan-detail">
+              <h3>📅 Juillet {selectedDay}</h3>
+              <input
+                type="text"
+                placeholder="Titre du jour"
+                value={planData[selectedDay]?.title || ''}
+                onChange={(e) => updatePlan(selectedDay, { ...planData[selectedDay], title: e.target.value })}
+                className="plan-input"
+              />
+              <textarea
+                placeholder="Tâches et détails..."
+                value={planData[selectedDay]?.description || ''}
+                onChange={(e) => updatePlan(selectedDay, { ...planData[selectedDay], description: e.target.value })}
+                className="plan-textarea"
+              />
+              <label className="plan-checkbox">
+                <input
+                  type="checkbox"
+                  checked={planData[selectedDay]?.completed || false}
+                  onChange={(e) => updatePlan(selectedDay, { ...planData[selectedDay], completed: e.target.checked })}
+                />
+                Journée complétée ✓
+              </label>
+            </div>
+          )}
         </section>
       )}
 
