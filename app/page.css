@@ -624,7 +624,8 @@ header .subtitle {
   border: 1px solid #ddd;
   border-radius: 8px;
   font-size: 0.95em;
-  resize: vertical;
+  resize: none;
+  overflow: hidden;
   margin-bottom: 15px;
   font-family: inherit;
   line-height: 1.5;
