@@ -2,10 +2,11 @@
 
 import { useState, useEffect, useRef } from 'react';
 import './page.css';
+import { fetchPlanFromSupabase, savePlanToSupabase, syncAllPlanData } from '@/lib/supabase';
 
 export default function Home() {
-  // v3 - All sections fully implemented and working
-  const [activeTab, setActiveTab] = useState('strategie');
+  // v4 - Ultra-simplified UX for brainstorming & organization
+  const [activeTab, setActiveTab] = useState('dashboard');
   const [activeMonth, setActiveMonth] = useState('juillet');
   const [calendarData, setCalendarData] = useState([]);
   const [reunions, setReunions] = useState([]);
@@ -70,12 +71,11 @@ export default function Home() {
 
   const fetchPlan = async () => {
     try {
-      const res = await fetch('/api/plan');
-      const serverData = await res.json() || {};
-      setPlanData(serverData);
-      localStorage.setItem('planData', JSON.stringify(serverData));
+      const data = await fetchPlanFromSupabase();
+      setPlanData(data);
+      localStorage.setItem('planData', JSON.stringify(data));
     } catch (err) {
-      console.error('Erreur fetch:', err);
+      console.error('Erreur fetch plan:', err);
       const stored = localStorage.getItem('planData');
       if (stored) {
         setPlanData(JSON.parse(stored));
@@ -86,17 +86,19 @@ export default function Home() {
   const syncPlanFromServer = async () => {
     setPlanSyncStatus('syncing');
     try {
-      const res = await fetch('/api/plan');
-      const serverData = await res.json() || {};
-
-      // MERGE: fusionne les données du serveur avec les données locales
-      // Ça garde les jours locaux + ajoute/remplace avec les jours du serveur
-      const mergedData = { ...planData, ...serverData };
-
-      setPlanData(mergedData);
-      localStorage.setItem('planData', JSON.stringify(mergedData));
-      setPlanSyncStatus('synced');
-      setTimeout(() => setPlanSyncStatus('saved'), 2000);
+      // Sync local data to Supabase
+      const synced = await syncAllPlanData(planData);
+      if (synced) {
+        // Then fetch latest from Supabase
+        const serverData = await fetchPlanFromSupabase();
+        const mergedData = { ...planData, ...serverData };
+        setPlanData(mergedData);
+        localStorage.setItem('planData', JSON.stringify(mergedData));
+        setPlanSyncStatus('synced');
+        setTimeout(() => setPlanSyncStatus('saved'), 2000);
+      } else {
+        setPlanSyncStatus('error');
+      }
     } catch (err) {
       console.error('Erreur sync:', err);
       setPlanSyncStatus('error');
@@ -109,14 +111,11 @@ export default function Home() {
     setPlanData(updated);
     localStorage.setItem('planData', JSON.stringify(updated));
     setPlanSyncStatus('saving');
-    fetch('/api/plan', {
-      method: 'PUT',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(updated)
-    })
+
+    savePlanToSupabase(dayNum, dayData)
       .then(() => setPlanSyncStatus('saved'))
       .catch(err => {
-        console.error('Erreur sync:', err);
+        console.error('Erreur save plan:', err);
         setPlanSyncStatus('saved');
       });
   };
