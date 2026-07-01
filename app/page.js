@@ -69,17 +69,16 @@ export default function Home() {
 
   const fetchPlan = async () => {
     try {
+      const res = await fetch('/api/plan');
+      const data = await res.json();
+      setPlanData(data);
+      localStorage.setItem('planData', JSON.stringify(data));
+    } catch (err) {
+      console.error('Erreur:', err);
       const stored = localStorage.getItem('planData');
       if (stored) {
         setPlanData(JSON.parse(stored));
-      } else {
-        const res = await fetch('/api/plan');
-        const data = await res.json();
-        setPlanData(data);
-        localStorage.setItem('planData', JSON.stringify(data));
       }
-    } catch (err) {
-      console.error('Erreur:', err);
     }
   };
 
@@ -94,9 +93,14 @@ export default function Home() {
         body: JSON.stringify(updated)
       });
     } catch (err) {
-      console.error(err);
+      console.error('Erreur sync:', err);
     }
   };
+
+  useEffect(() => {
+    const interval = setInterval(fetchPlan, 3000);
+    return () => clearInterval(interval);
+  }, []);
 
   const updateCell = async (index, field, value) => {
     const updated = [...calendarData];
