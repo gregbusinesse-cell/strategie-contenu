@@ -15,6 +15,8 @@ export default function Home() {
   const [transcript, setTranscript] = useState('');
   const [planData, setPlanData] = useState({});
   const [selectedDay, setSelectedDay] = useState(null);
+  const [isPlanRecording, setIsPlanRecording] = useState(false);
+  const [planTranscript, setPlanTranscript] = useState('');
 
   useEffect(() => {
     fetchCalendar();
@@ -200,6 +202,35 @@ export default function Home() {
         const transcript = event.results[i][0].transcript;
         if (event.results[i].isFinal) {
           setTranscript(prev => prev + transcript + ' ');
+        } else {
+          interimTranscript += transcript;
+        }
+      }
+    };
+
+    recognition.start();
+  };
+
+  const startPlanRecording = () => {
+    const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+    if (!SpeechRecognition) {
+      alert('La reconnaissance vocale n\'est pas supportée par votre navigateur');
+      return;
+    }
+
+    const recognition = new SpeechRecognition();
+    recognition.lang = 'fr-FR';
+    recognition.continuous = true;
+
+    recognition.onstart = () => setIsPlanRecording(true);
+    recognition.onend = () => setIsPlanRecording(false);
+
+    recognition.onresult = (event) => {
+      let interimTranscript = '';
+      for (let i = event.resultIndex; i < event.results.length; i++) {
+        const transcript = event.results[i][0].transcript;
+        if (event.results[i].isFinal) {
+          setPlanTranscript(prev => prev + transcript + ' ');
         } else {
           interimTranscript += transcript;
         }
@@ -399,7 +430,7 @@ export default function Home() {
 
           <div className="plan-calendar">
             {Array.from({ length: 31 }, (_, i) => i + 1).map((day) => {
-              const dayData = planData[day] || { title: '', tasks: [], completed: false };
+              const dayData = planData[day] || { title: '', description: '', completed: false };
               return (
                 <div
                   key={day}
@@ -429,6 +460,27 @@ export default function Home() {
                 onChange={(e) => updatePlan(selectedDay, { ...planData[selectedDay], description: e.target.value })}
                 className="plan-textarea"
               />
+
+              <div className="audio-section">
+                <label>🎤 Enregistrer vocalement</label>
+                <div className="audio-controls">
+                  <button className={`btn-record ${isPlanRecording ? 'recording' : ''}`} onClick={startPlanRecording}>
+                    {isPlanRecording ? '🔴 Enregistrement...' : '🎤 Démarrer'}
+                  </button>
+                </div>
+                {planTranscript && (
+                  <div className="transcript-box">
+                    <p><strong>Transcription :</strong></p>
+                    <p>{planTranscript}</p>
+                    <button onClick={() => {
+                      updatePlan(selectedDay, { ...planData[selectedDay], description: (planData[selectedDay]?.description || '') + '\n' + planTranscript });
+                      setPlanTranscript('');
+                    }}>✅ Ajouter à la description</button>
+                    <button onClick={() => setPlanTranscript('')}>🗑️ Effacer</button>
+                  </div>
+                )}
+              </div>
+
               <label className="plan-checkbox">
                 <input
                   type="checkbox"
