@@ -485,7 +485,7 @@ export default function Home() {
       {activeTab === 'plan' && (
         <section className="tab-content plan-content">
           <div style={{ marginBottom: '20px' }}>
-            <h2 style={{ display: 'inline-block', marginRight: '20px' }}>📋 Plan Juillet 2026 [v3-CONNECTED]</h2>
+            <h2 style={{ display: 'inline-block', marginRight: '20px' }}>📋 Plan Juillet 2026</h2>
             <button
               onClick={syncPlanFromServer}
               disabled={planSyncStatus === 'syncing'}
