@@ -87,27 +87,12 @@ export default function Home() {
     const updated = { ...planData, [dayNum]: dayData };
     setPlanData(updated);
     localStorage.setItem('planData', JSON.stringify(updated));
-    lastModifiedRef.current = Date.now();
-    try {
-      await fetch('/api/plan', {
-        method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(updated)
-      });
-    } catch (err) {
-      console.error('Erreur sync:', err);
-    }
+    fetch('/api/plan', {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(updated)
+    }).catch(err => console.error('Erreur sync:', err));
   };
-
-  useEffect(() => {
-    const interval = setInterval(() => {
-      const timeSinceModified = Date.now() - lastModifiedRef.current;
-      if (timeSinceModified > 5000) {
-        fetchPlan();
-      }
-    }, 8000);
-    return () => clearInterval(interval);
-  }, []);
 
   const updateCell = async (index, field, value) => {
     const updated = [...calendarData];
