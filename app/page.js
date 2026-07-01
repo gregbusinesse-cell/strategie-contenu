@@ -68,21 +68,14 @@ export default function Home() {
     }
   };
 
-  const fetchPlan = async (fromServer = false) => {
+  const fetchPlan = async () => {
     try {
-      if (!fromServer) {
-        const stored = localStorage.getItem('planData');
-        if (stored) {
-          setPlanData(JSON.parse(stored));
-          return;
-        }
-      }
       const res = await fetch('/api/plan');
-      const data = await res.json();
-      setPlanData(data);
-      localStorage.setItem('planData', JSON.stringify(data));
+      const serverData = await res.json() || {};
+      setPlanData(serverData);
+      localStorage.setItem('planData', JSON.stringify(serverData));
     } catch (err) {
-      console.error('Erreur:', err);
+      console.error('Erreur fetch:', err);
       const stored = localStorage.getItem('planData');
       if (stored) {
         setPlanData(JSON.parse(stored));
@@ -94,9 +87,14 @@ export default function Home() {
     setPlanSyncStatus('syncing');
     try {
       const res = await fetch('/api/plan');
-      const data = await res.json();
-      setPlanData(data);
-      localStorage.setItem('planData', JSON.stringify(data));
+      const serverData = await res.json() || {};
+
+      // MERGE: fusionne les données du serveur avec les données locales
+      // Ça garde les jours locaux + ajoute/remplace avec les jours du serveur
+      const mergedData = { ...planData, ...serverData };
+
+      setPlanData(mergedData);
+      localStorage.setItem('planData', JSON.stringify(mergedData));
       setPlanSyncStatus('synced');
       setTimeout(() => setPlanSyncStatus('saved'), 2000);
     } catch (err) {
