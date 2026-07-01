@@ -488,20 +488,31 @@ export default function Home() {
             <h2 style={{ display: 'inline-block', marginRight: '20px' }}>📋 Plan Juillet 2026</h2>
             <button
               onClick={syncPlanFromServer}
+              disabled={planSyncStatus === 'syncing'}
               style={{
-                padding: '10px 16px',
-                background: '#1F4E78',
+                padding: '12px 20px',
+                background: planSyncStatus === 'syncing' ? '#999' : planSyncStatus === 'synced' ? '#10b981' : '#1F4E78',
                 color: 'white',
                 border: 'none',
                 borderRadius: '6px',
-                cursor: 'pointer',
+                cursor: planSyncStatus === 'syncing' ? 'not-allowed' : 'pointer',
                 fontSize: '14px',
+                fontWeight: 'bold',
                 display: 'inline-block',
-                verticalAlign: 'middle'
+                verticalAlign: 'middle',
+                transition: 'all 0.3s ease',
+                boxShadow: planSyncStatus === 'syncing' ? '0 2px 8px rgba(0,0,0,0.2)' : 'none'
               }}
             >
-              🔗 Synchroniser
+              {planSyncStatus === 'syncing' ? '⏳ Synchronisation...' : planSyncStatus === 'synced' ? '✓ Synchronisé!' : '🔗 Synchroniser'}
             </button>
+            {planSyncStatus !== 'saved' && (
+              <span style={{ marginLeft: '15px', fontSize: '13px', color: planSyncStatus === 'synced' ? '#10b981' : planSyncStatus === 'error' ? '#ef4444' : '#666' }}>
+                {planSyncStatus === 'syncing' && 'Synchronisation en cours...'}
+                {planSyncStatus === 'synced' && '✓ Données sauvegardées dans Supabase!'}
+                {planSyncStatus === 'error' && '✗ Erreur lors de la synchronisation'}
+              </span>
+            )}
           </div>
           <p style={{ marginBottom: '30px', clear: 'both' }}>Planifiez votre mois jour par jour</p>
 
