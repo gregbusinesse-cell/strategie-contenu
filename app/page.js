@@ -72,26 +72,19 @@ export default function Home() {
   const fetchPlan = async () => {
     try {
       console.log('📥 Loading plan data from Supabase...');
-      // Load from Supabase (source of truth)
+      // Load from Supabase (source of truth) - ALWAYS trust server
       const supabaseData = await fetchPlanFromSupabase();
 
-      // If we have local data, merge it
-      const localStored = localStorage.getItem('planData');
-      let finalData = supabaseData;
-      if (localStored) {
-        const localData = JSON.parse(localStored);
-        finalData = { ...supabaseData, ...localData };
-      }
-
-      setPlanData(finalData);
-      localStorage.setItem('planData', JSON.stringify(finalData));
-      console.log('✓ Plan data loaded');
+      // Supabase is absolute source of truth
+      setPlanData(supabaseData);
+      localStorage.setItem('planData', JSON.stringify(supabaseData));
+      console.log('✓ Plan data loaded from Supabase');
     } catch (err) {
       console.error('Erreur fetch plan:', err);
       const stored = localStorage.getItem('planData');
       if (stored) {
         setPlanData(JSON.parse(stored));
-        console.log('⚠️ Using cached data from localStorage');
+        console.log('⚠️ Using cached data from localStorage (offline mode)');
       }
     }
   };
