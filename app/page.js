@@ -476,17 +476,8 @@ export default function Home() {
               <h2>📋 Plan Juillet 2026</h2>
               <p>Planifiez votre mois jour par jour</p>
             </div>
-            <button
-              onClick={syncPlanFromServer}
-              className="plan-sync-btn"
-              disabled={planSyncStatus === 'syncing'}
-              title="Synchroniser les changements de ton pote"
-            >
-              {planSyncStatus === 'syncing' && '🔄 Sync...'}
-              {planSyncStatus === 'synced' && '✅'}
-              {planSyncStatus === 'saved' && '🔗 Sync'}
-              {planSyncStatus === 'saving' && '💾'}
-              {planSyncStatus === 'error' && '⚠️'}
+            <button onClick={syncPlanFromServer} className="plan-sync-btn">
+              🔗 Synchroniser
             </button>
           </div>
 
