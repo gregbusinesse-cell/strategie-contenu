@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import './page.css';
 
 export default function Home() {
@@ -18,6 +18,7 @@ export default function Home() {
   const [isPlanRecording, setIsPlanRecording] = useState(false);
   const [planTranscript, setPlanTranscript] = useState('');
   const [planRecognition, setPlanRecognition] = useState(null);
+  const lastModifiedRef = useRef(0);
 
   useEffect(() => {
     fetchCalendar();
@@ -86,6 +87,7 @@ export default function Home() {
     const updated = { ...planData, [dayNum]: dayData };
     setPlanData(updated);
     localStorage.setItem('planData', JSON.stringify(updated));
+    lastModifiedRef.current = Date.now();
     try {
       await fetch('/api/plan', {
         method: 'PUT',
@@ -98,7 +100,12 @@ export default function Home() {
   };
 
   useEffect(() => {
-    const interval = setInterval(fetchPlan, 3000);
+    const interval = setInterval(() => {
+      const timeSinceModified = Date.now() - lastModifiedRef.current;
+      if (timeSinceModified > 5000) {
+        fetchPlan();
+      }
+    }, 8000);
     return () => clearInterval(interval);
   }, []);
 
