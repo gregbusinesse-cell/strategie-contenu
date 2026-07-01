@@ -18,7 +18,7 @@ export default function Home() {
   const [isPlanRecording, setIsPlanRecording] = useState(false);
   const [planTranscript, setPlanTranscript] = useState('');
   const [planRecognition, setPlanRecognition] = useState(null);
-  const lastModifiedRef = useRef(0);
+  const [planSyncStatus, setPlanSyncStatus] = useState('saved');
 
   useEffect(() => {
     fetchCalendar();
@@ -68,8 +68,15 @@ export default function Home() {
     }
   };
 
-  const fetchPlan = async () => {
+  const fetchPlan = async (fromServer = false) => {
     try {
+      if (!fromServer) {
+        const stored = localStorage.getItem('planData');
+        if (stored) {
+          setPlanData(JSON.parse(stored));
+          return;
+        }
+      }
       const res = await fetch('/api/plan');
       const data = await res.json();
       setPlanData(data);
@@ -83,27 +90,38 @@ export default function Home() {
     }
   };
 
+  const syncPlanFromServer = async () => {
+    setPlanSyncStatus('syncing');
+    try {
+      const res = await fetch('/api/plan');
+      const data = await res.json();
+      setPlanData(data);
+      localStorage.setItem('planData', JSON.stringify(data));
+      setPlanSyncStatus('synced');
+      setTimeout(() => setPlanSyncStatus('saved'), 2000);
+    } catch (err) {
+      console.error('Erreur sync:', err);
+      setPlanSyncStatus('error');
+      setTimeout(() => setPlanSyncStatus('saved'), 2000);
+    }
+  };
+
   const updatePlan = async (dayNum, dayData) => {
     const updated = { ...planData, [dayNum]: dayData };
     setPlanData(updated);
     localStorage.setItem('planData', JSON.stringify(updated));
-    lastModifiedRef.current = Date.now();
+    setPlanSyncStatus('saving');
     fetch('/api/plan', {
       method: 'PUT',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(updated)
-    }).catch(err => console.error('Erreur sync:', err));
+    })
+      .then(() => setPlanSyncStatus('saved'))
+      .catch(err => {
+        console.error('Erreur sync:', err);
+        setPlanSyncStatus('saved');
+      });
   };
-
-  useEffect(() => {
-    const interval = setInterval(() => {
-      const timeSinceModified = Date.now() - lastModifiedRef.current;
-      if (timeSinceModified > 15000) {
-        fetchPlan();
-      }
-    }, 45000);
-    return () => clearInterval(interval);
-  }, []);
 
   const updateCell = async (index, field, value) => {
     const updated = [...calendarData];
@@ -454,8 +472,39 @@ export default function Home() {
       {activeTab === 'plan' && (
         <section className="tab-content plan-content">
           <div className="plan-header">
-            <h2>📋 Plan Juillet 2026</h2>
-            <p>Planifiez votre mois jour par jour</p>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+              <div>
+                <h2>📋 Plan Juillet 2026</h2>
+                <p>Planifiez votre mois jour par jour</p>
+              </div>
+              <div style={{ textAlign: 'right' }}>
+                <button
+                  onClick={syncPlanFromServer}
+                  style={{
+                    padding: '8px 16px',
+                    backgroundColor: planSyncStatus === 'syncing' ? '#667eea' : '#1F4E78',
+                    color: 'white',
+                    border: 'none',
+                    borderRadius: '6px',
+                    cursor: planSyncStatus === 'syncing' ? 'wait' : 'pointer',
+                    fontSize: '14px',
+                    marginBottom: '8px'
+                  }}
+                  disabled={planSyncStatus === 'syncing'}
+                >
+                  {planSyncStatus === 'syncing' && '🔄 Synchronisation...'}
+                  {planSyncStatus === 'synced' && '✅ À jour'}
+                  {planSyncStatus === 'saved' && '🔗 Voir changements de ton pote'}
+                  {planSyncStatus === 'saving' && '💾 Sauvegarde...'}
+                  {planSyncStatus === 'error' && '⚠️ Erreur sync'}
+                </button>
+                <p style={{ fontSize: '12px', color: '#666', margin: '4px 0' }}>
+                  {planSyncStatus === 'saved' && '✓ Tout sauvegardé'}
+                  {planSyncStatus === 'saving' && 'Sauvegarde en cours...'}
+                  {planSyncStatus === 'synced' && 'Synchronisé!'}
+                </p>
+              </div>
+            </div>
           </div>
 
           <div className="plan-calendar">
