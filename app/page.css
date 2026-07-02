@@ -725,6 +725,10 @@ header .subtitle {
   border: 1px solid #eee;
 }
 
+.finances-table td:nth-child(5) {
+  min-width: 120px;
+}
+
 .finances-table input[type="text"],
 .finances-table input[type="number"],
 .finances-table input[type="url"],

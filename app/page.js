@@ -323,10 +323,6 @@ export default function Home() {
           onClick={() => setActiveTab('plan')}>
           Plan
         </button>
-        <button className={`tab-btn ${activeTab === 'reunions' ? 'active' : ''}`}
-          onClick={() => setActiveTab('reunions')}>
-          Réunions
-        </button>
         <button className={`tab-btn ${activeTab === 'idees' ? 'active' : ''}`}
           onClick={() => setActiveTab('idees')}>
           Idées
@@ -605,95 +601,6 @@ export default function Home() {
               </label>
             </div>
           )}
-        </section>
-      )}
-
-      {activeTab === 'reunions' && (
-        <section className="tab-content reunions-content">
-          <div className="reunions-header">
-            <h2>🤝 Réunions & Trips</h2>
-            <p>Organisez vos rencontres, trips et moments de création intensive</p>
-          </div>
-          <div className="reunions-list">
-            {reunions.length === 0 ? (
-              <div className="empty-state">
-                <p>Aucune réunion planifiée. Cliquez sur "Ajouter une réunion" pour en créer une.</p>
-              </div>
-            ) : (
-              reunions.map((reunion, idx) => (
-                <div key={idx} className="reunion-card">
-                  <div className="reunion-field">
-                    <label>Titre</label>
-                    <input type="text" value={reunion.titre} onChange={(e) => updateReunion(idx, 'titre', e.target.value)} placeholder="Ex: Trip Airbnb Août" />
-                  </div>
-                  <div className="reunion-row">
-                    <div className="reunion-field">
-                      <label>Lieu</label>
-                      <input type="text" value={reunion.lieu} onChange={(e) => updateReunion(idx, 'lieu', e.target.value)} placeholder="Paris, Marseille, etc." />
-                    </div>
-                    <div className="reunion-field">
-                      <label>Lien Airbnb</label>
-                      <input type="url" value={reunion.airbnbLink} onChange={(e) => updateReunion(idx, 'airbnbLink', e.target.value)} placeholder="https://airbnb.com/..." />
-                    </div>
-                  </div>
-                  <div className="reunion-row">
-                    <div className="reunion-field">
-                      <label>Date début</label>
-                      <input type="date" value={reunion.dateDebut} onChange={(e) => updateReunion(idx, 'dateDebut', e.target.value)} />
-                    </div>
-                    <div className="reunion-field">
-                      <label>Date fin</label>
-                      <input type="date" value={reunion.dateFin} onChange={(e) => updateReunion(idx, 'dateFin', e.target.value)} />
-                    </div>
-                    <div className="reunion-field">
-                      <label>Heure arrivée</label>
-                      <input type="time" value={reunion.heureArrivee} onChange={(e) => updateReunion(idx, 'heureArrivee', e.target.value)} />
-                    </div>
-                    <div className="reunion-field">
-                      <label>Heure départ</label>
-                      <input type="time" value={reunion.heureDepart} onChange={(e) => updateReunion(idx, 'heureDepart', e.target.value)} />
-                    </div>
-                  </div>
-                  <div className="reunion-field">
-                    <label>Participants</label>
-                    <textarea value={reunion.participants} onChange={(e) => updateReunion(idx, 'participants', e.target.value)} placeholder="Qui va participer ?" className="notes-textarea" />
-                  </div>
-                  <div className="reunion-row">
-                    <div className="reunion-field">
-                      <label>Matériel personnel</label>
-                      <textarea value={reunion.materielPersonnel} onChange={(e) => updateReunion(idx, 'materielPersonnel', e.target.value)} placeholder="Vêtements, toilettes, etc." className="notes-textarea" />
-                    </div>
-                    <div className="reunion-field">
-                      <label>Matériel professionnel</label>
-                      <textarea value={reunion.materielProfessionnel} onChange={(e) => updateReunion(idx, 'materielProfessionnel', e.target.value)} placeholder="Caméra, micro, lumières, etc." className="notes-textarea" />
-                    </div>
-                  </div>
-                  <div className="reunion-field">
-                    <label>Activités & Scénarios</label>
-                    <textarea value={reunion.activites} onChange={(e) => updateReunion(idx, 'activites', e.target.value)} placeholder="Que faire ? Comment filmer ? Quels scénarios ?" className="notes-textarea" />
-                  </div>
-                  <div className="reunion-field">
-                    <label>Notes</label>
-                    <textarea value={reunion.notes} onChange={(e) => updateReunion(idx, 'notes', e.target.value)} placeholder="Autres détails..." className="notes-textarea" />
-                  </div>
-                  <button className="btn-delete-reunion" onClick={async () => {
-                    const updated = reunions.filter((_, i) => i !== idx);
-                    setReunions(updated);
-                    await fetch('/api/reunions', { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(updated) });
-                  }}>🗑️ Supprimer</button>
-                </div>
-              ))
-            )}
-          </div>
-          <button className="btn-add-reunion" onClick={async () => {
-            const newReunion = {
-              titre: 'Nouvelle réunion', lieu: '', dateDebut: '', dateFin: '', heureArrivee: '', heureDepart: '',
-              airbnbLink: '', participants: '', materielPersonnel: '', materielProfessionnel: '', activites: '', notes: ''
-            };
-            const updated = [...reunions, newReunion];
-            setReunions(updated);
-            await fetch('/api/reunions', { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(updated) });
-          }}>➕ Ajouter une réunion</button>
         </section>
       )}
 
