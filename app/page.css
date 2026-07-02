@@ -1128,6 +1128,82 @@ header .subtitle {
   font-size: 1.05em;
 }
 
+.finances-header-info {
+  text-align: right;
+  font-size: 0.95em;
+  color: #666;
+  margin-bottom: 15px;
+  font-weight: 500;
+}
+
+.idee-accordion {
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  margin-bottom: 12px;
+  overflow: hidden;
+}
+
+.idee-header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 15px;
+  background: #f9f9f9;
+  cursor: pointer;
+  border-bottom: 1px solid #eee;
+  transition: background 0.2s ease;
+}
+
+.idee-header:hover {
+  background: #f0f0f0;
+}
+
+.idee-accordion.expanded .idee-header {
+  background: #e8f0f8;
+  border-bottom-color: #667eea;
+}
+
+.idee-chevron {
+  font-size: 0.8em;
+  color: #667eea;
+  font-weight: bold;
+  width: 16px;
+  text-align: center;
+}
+
+.idee-title {
+  flex: 1;
+  font-weight: 500;
+  color: #333;
+  word-break: break-word;
+}
+
+.idee-type-mini {
+  font-size: 0.75em;
+  background: #667eea;
+  color: white;
+  padding: 4px 8px;
+  border-radius: 4px;
+  font-weight: 600;
+}
+
+.idee-details {
+  padding: 20px;
+  background: white;
+  animation: slideDown 0.2s ease;
+}
+
+@keyframes slideDown {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
 @media (max-width: 768px) {
   .container {
     border-radius: 0;

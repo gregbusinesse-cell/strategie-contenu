@@ -26,6 +26,7 @@ export default function Home() {
   const [planRecognition, setPlanRecognition] = useState(null);
   const [planSyncStatus, setPlanSyncStatus] = useState('saved');
   const [tresorerie, setTresorerie] = useState(785);
+  const [expandedIdea, setExpandedIdea] = useState(null);
 
   // Auto-resize textarea to fit content
   useEffect(() => {
@@ -636,79 +637,74 @@ export default function Home() {
           </div>
           <div className="idees-list">
             {idees.map((idee, idx) => (
-              <div key={idx} className="idee-card">
-                <div className="idee-type-badge">{idee.type || 'Idée générale'}</div>
-                <div className="idee-field">
-                  <label>Titre</label>
-                  <input type="text" value={idee.titre} onChange={(e) => updateIdee(idx, 'titre', e.target.value)} placeholder="Titre de l'idée..." />
+              <div key={idx} className={`idee-accordion ${expandedIdea === idx ? 'expanded' : ''}`}>
+                <div
+                  className="idee-header"
+                  onClick={() => setExpandedIdea(expandedIdea === idx ? null : idx)}
+                >
+                  <span className="idee-chevron">{expandedIdea === idx ? '▼' : '▶'}</span>
+                  <span className="idee-title">{idee.titre || '(Sans titre)'}</span>
+                  <span className="idee-type-mini">{idee.type || 'Idée générale'}</span>
                 </div>
-                <div className="idee-field">
-                  <label>Description & Concept</label>
-                  <textarea value={idee.description} onChange={(e) => updateIdee(idx, 'description', e.target.value)} placeholder="Explique l'idée en détail..." className="notes-textarea large-textarea" />
-                </div>
-                {idee.type === 'Vidéo' && (
-                  <>
-                    <div className="idee-row">
-                      <div className="idee-field">
-                        <label>Type de contenu</label>
-                        <select value={idee.typeContenu || ''} onChange={(e) => updateIdee(idx, 'typeContenu', e.target.value)}>
-                          <option value="">Sélectionner</option>
-                          <option value="Contenu">Contenu</option>
-                          <option value="Concept">Concept (à développer)</option>
-                          <option value="Test">Test</option>
-                        </select>
-                      </div>
-                      <div className="idee-field">
-                        <label>Durée estimée</label>
-                        <input type="text" value={idee.duree || ''} onChange={(e) => updateIdee(idx, 'duree', e.target.value)} placeholder="Ex: 15 min, 5 min..." />
-                      </div>
+
+                {expandedIdea === idx && (
+                  <div className="idee-details">
+                    <div className="idee-field">
+                      <label>Titre</label>
+                      <input type="text" value={idee.titre} onChange={(e) => updateIdee(idx, 'titre', e.target.value)} placeholder="Titre de l'idée..." />
                     </div>
-                  </>
+                    <div className="idee-field">
+                      <label>Description & Concept</label>
+                      <textarea value={idee.description} onChange={(e) => updateIdee(idx, 'description', e.target.value)} placeholder="Explique l'idée en détail..." className="notes-textarea" />
+                    </div>
+                    {idee.type === 'Vidéo' && (
+                      <>
+                        <div className="idee-row">
+                          <div className="idee-field">
+                            <label>Type de contenu</label>
+                            <select value={idee.typeContenu || ''} onChange={(e) => updateIdee(idx, 'typeContenu', e.target.value)}>
+                              <option value="">Sélectionner</option>
+                              <option value="Contenu">Contenu</option>
+                              <option value="Concept">Concept (à développer)</option>
+                              <option value="Test">Test</option>
+                            </select>
+                          </div>
+                          <div className="idee-field">
+                            <label>Durée estimée</label>
+                            <input type="text" value={idee.duree || ''} onChange={(e) => updateIdee(idx, 'duree', e.target.value)} placeholder="Ex: 15 min, 5 min..." />
+                          </div>
+                        </div>
+                      </>
+                    )}
+                    <div className="idee-field">
+                      <label>Photos & Références</label>
+                      <div className="images-container">
+                        {(idee.images || []).map((img, imgIdx) => (
+                          <div key={imgIdx} className="image-item">
+                            <img src={img} alt="référence" />
+                            <button onClick={() => updateIdee(idx, 'images', idee.images.filter((_, i) => i !== imgIdx))}>X</button>
+                          </div>
+                        ))}
+                      </div>
+                      <label className="file-upload-label">
+                        Ajouter une image
+                        <input type="file" accept="image/*" onChange={(e) => handleImageUploadIdee(e, idx)} />
+                      </label>
+                    </div>
+                    <div className="idee-field">
+                      <label>Notes</label>
+                      <textarea value={idee.notes || ''} onChange={(e) => updateIdee(idx, 'notes', e.target.value)} placeholder="Notes supplémentaires..." className="notes-textarea" />
+                    </div>
+                    <button className="btn-delete-idee" onClick={async () => {
+                      if (idee.id) {
+                        await deleteIdeaFromSupabase(idee.id);
+                      }
+                      const updated = idees.filter((_, i) => i !== idx);
+                      setIdees(updated);
+                      setExpandedIdea(null);
+                    }}>Supprimer</button>
+                  </div>
                 )}
-                <div className="idee-field">
-                  <label>Photos & Références</label>
-                  <div className="images-container">
-                    {(idee.images || []).map((img, imgIdx) => (
-                      <div key={imgIdx} className="image-item">
-                        <img src={img} alt="référence" />
-                        <button onClick={() => updateIdee(idx, 'images', idee.images.filter((_, i) => i !== imgIdx))}>X</button>
-                      </div>
-                    ))}
-                  </div>
-                  <label className="file-upload-label">
-                    Ajouter une image
-                    <input type="file" accept="image/*" onChange={(e) => handleImageUploadIdee(e, idx)} />
-                  </label>
-                </div>
-                <div className="audio-section">
-                  <label>Enregistrer des notes vocales</label>
-                  <div className="audio-controls">
-                    <button className={`btn-record ${isRecording ? 'recording' : ''}`} onClick={startRecording}>
-                      {isRecording ? 'Enregistrement...' : 'Démarrer'}
-                    </button>
-                  </div>
-                  {transcript && (
-                    <div className="transcript-box">
-                      <p><strong>Transcription :</strong></p>
-                      <p>{transcript}</p>
-                      <button onClick={() => {
-                        updateIdee(idx, 'notes', (idee.notes || '') + '\n' + transcript);
-                        setTranscript('');
-                      }}>Ajouter à la description</button>
-                    </div>
-                  )}
-                </div>
-                <div className="idee-field">
-                  <label>Notes</label>
-                  <textarea value={idee.notes || ''} onChange={(e) => updateIdee(idx, 'notes', e.target.value)} placeholder="Notes supplémentaires..." className="notes-textarea" />
-                </div>
-                <button className="btn-delete-idee" onClick={async () => {
-                  if (idee.id) {
-                    await deleteIdeaFromSupabase(idee.id);
-                  }
-                  const updated = idees.filter((_, i) => i !== idx);
-                  setIdees(updated);
-                }}>Supprimer</button>
               </div>
             ))}
           </div>
@@ -735,9 +731,10 @@ export default function Home() {
             <h2>Finances & Matériel</h2>
             <p>Tracker tout ce qu'on doit acheter et les dépenses</p>
           </div>
+          <div className="finances-header-info">Mois de juillet</div>
           <div className="finances-summary">
             <div className="summary-card tresorerie-card">
-              <span>Trésorerie actuelle :</span>
+              <span>Trésorerie :</span>
               <input type="number"
                 value={tresorerie}
                 onChange={(e) => setTresorerie(parseFloat(e.target.value))}
@@ -745,12 +742,8 @@ export default function Home() {
               />€
             </div>
             <div className="summary-card">
-              <span>Total estimé :</span>
+              <span>Dépenses :</span>
               <strong>€{finances.reduce((sum, item) => sum + (parseFloat(item.prixunitaire || 0) * parseInt(item.quantite || 0)), 0).toFixed(2)}</strong>
-            </div>
-            <div className="summary-card">
-              <span>Trésorerie restante :</span>
-              <strong>€{(tresorerie - finances.reduce((sum, item) => sum + (parseFloat(item.prixunitaire || 0) * parseInt(item.quantite || 0)), 0)).toFixed(2)}</strong>
             </div>
           </div>
           <div className="table-container">
