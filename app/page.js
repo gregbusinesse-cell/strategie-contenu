@@ -306,7 +306,7 @@ export default function Home() {
   return (
     <div className="container">
       <header>
-        <h1>📊 Stratégie Création de Contenu</h1>
+        <h1>Stratégie Création de Contenu</h1>
         <p className="subtitle">Juillet - Août 2026 | Production Intensive</p>
       </header>
 
