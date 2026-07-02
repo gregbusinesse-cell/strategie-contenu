@@ -3,6 +3,11 @@
 import { useState, useEffect, useRef } from 'react';
 import './page.css';
 import { fetchPlanFromSupabase, savePlanToSupabase, syncAllPlanData, refreshPlanData } from '@/lib/supabase';
+import {
+  fetchIdeasFromSupabase, saveIdeaToSupabase, deleteIdeaFromSupabase, syncAllIdeas,
+  fetchFinancesFromSupabase, saveFinanceToSupabase, deleteFinanceFromSupabase, syncAllFinances,
+  fetchVideosFromSupabase, saveVideoToSupabase, deleteVideoFromSupabase, syncAllVideos
+} from '@/lib/supabase-multi';
 
 export default function Home() {
   // v4 - Ultra-simplified UX for brainstorming & organization
@@ -35,6 +40,7 @@ export default function Home() {
     fetchReunions();
     fetchFinances();
     fetchIdees();
+    fetchVideos();
     fetchPlan();
   }, []);
 
@@ -60,8 +66,7 @@ export default function Home() {
 
   const fetchFinances = async () => {
     try {
-      const res = await fetch('/api/finances');
-      const data = await res.json();
+      const data = await fetchFinancesFromSupabase();
       setFinances(data);
     } catch (err) {
       console.error('Erreur:', err);
@@ -70,9 +75,18 @@ export default function Home() {
 
   const fetchIdees = async () => {
     try {
-      const res = await fetch('/api/idees');
-      const data = await res.json();
+      const data = await fetchIdeasFromSupabase();
       setIdees(data);
+    } catch (err) {
+      console.error('Erreur:', err);
+    }
+  };
+
+  const fetchVideos = async () => {
+    try {
+      const data = await fetchVideosFromSupabase();
+      // Set as calendarData for now - we can refactor later
+      setCalendarData(data);
     } catch (err) {
       console.error('Erreur:', err);
     }
@@ -80,20 +94,20 @@ export default function Home() {
 
   const fetchPlan = async () => {
     try {
-      console.log('📥 Loading plan data from Supabase...');
+      console.log('Loading plan data from Supabase...');
       // Load from Supabase (source of truth) - ALWAYS trust server
       const supabaseData = await fetchPlanFromSupabase();
 
       // Supabase is absolute source of truth
       setPlanData(supabaseData);
       localStorage.setItem('planData', JSON.stringify(supabaseData));
-      console.log('✓ Plan data loaded from Supabase');
+      console.log('Plan data loaded from Supabase');
     } catch (err) {
       console.error('Erreur fetch plan:', err);
       const stored = localStorage.getItem('planData');
       if (stored) {
         setPlanData(JSON.parse(stored));
-        console.log('⚠️ Using cached data from localStorage (offline mode)');
+        console.log('Using cached data from localStorage (offline mode)');
       }
     }
   };
@@ -101,12 +115,12 @@ export default function Home() {
   const syncPlanFromServer = async () => {
     setPlanSyncStatus('syncing');
     try {
-      console.log('🔄 Synchronisation complète...');
+      console.log('Synchronisation complète...');
 
       // Step 1: Push all local changes to Supabase
       const pushSuccess = await syncAllPlanData(planData);
       if (!pushSuccess) {
-        console.warn('⚠️ Some items failed to sync');
+        console.warn('Some items failed to sync');
       }
 
       // Step 2: Refresh from Supabase to get latest + merged data
@@ -115,7 +129,7 @@ export default function Home() {
       localStorage.setItem('planData', JSON.stringify(refreshedData));
 
       setPlanSyncStatus('synced');
-      console.log('✓ Synchronisation complète!');
+      console.log('Synchronisation complète!');
       setTimeout(() => setPlanSyncStatus('saved'), 2000);
     } catch (err) {
       console.error('Erreur sync:', err);
@@ -174,30 +188,30 @@ export default function Home() {
     const updated = [...finances];
     updated[index][field] = value;
     setFinances(updated);
-    try {
-      await fetch('/api/finances', {
-        method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(updated)
-      });
-    } catch (err) {
-      console.error(err);
-    }
+
+    // Save to Supabase
+    saveFinanceToSupabase(updated[index])
+      .catch(err => console.error('Erreur save finance:', err));
   };
 
   const updateIdee = async (index, field, value) => {
     const updated = [...idees];
     updated[index][field] = value;
     setIdees(updated);
-    try {
-      await fetch('/api/idees', {
-        method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(updated)
-      });
-    } catch (err) {
-      console.error(err);
-    }
+
+    // Save to Supabase
+    saveIdeaToSupabase(updated[index])
+      .catch(err => console.error('Erreur save idea:', err));
+  };
+
+  const updateVideo = async (index, field, value) => {
+    const updated = [...calendarData];
+    updated[index][field] = value;
+    setCalendarData(updated);
+
+    // Save to Supabase
+    saveVideoToSupabase(updated[index])
+      .catch(err => console.error('Erreur save video:', err));
   };
 
   const getCalendarByMonth = (month) => {
@@ -336,63 +350,63 @@ export default function Home() {
       {activeTab === 'strategie' && (
         <section className="tab-content strategie-content">
           <section className="strategie-section">
-            <h2>🎯 Objectif Global</h2>
+            <h2>Objectif Global</h2>
             <p>Lancer une production intensive de contenu : <strong>1 vidéo longue par jour + 3+ réels par jour</strong></p>
           </section>
 
           <section className="strategie-phase">
-            <h2>🔴 Phase 1 : Préparation (1-5 juillet)</h2>
+            <h2>Phase 1 : Préparation (1-5 juillet)</h2>
             <div className="phase-details">
                 <p><strong>Objectif :</strong> Préparer tout le matériel, setup technique et contenu en brouillon pour démarrer la production intensive.</p>
                 <ul>
-                  <li>✓ Tester caméra, micro, lumières, décor</li>
-                  <li>✓ Créer 20-30 idées de vidéos longues</li>
-                  <li>✓ Préparer 50+ idées de réels (TikTok, Instagram, YouTube Shorts)</li>
-                  <li>✓ Organiser l'espace de travail/tournage</li>
-                  <li>✓ Préparer graphiques, templates, musiques</li>
+                  <li>Tester caméra, micro, lumières, décor</li>
+                  <li>Créer 20-30 idées de vidéos longues</li>
+                  <li>Préparer 50+ idées de réels (TikTok, Instagram, YouTube Shorts)</li>
+                  <li>Organiser l'espace de travail/tournage</li>
+                  <li>Préparer graphiques, templates, musiques</li>
                 </ul>
               </div>
           </section>
 
           <section className="strategie-phase">
-            <h2>🔵 Phase 2 : Lancement (6-20 juillet)</h2>
+            <h2>Phase 2 : Lancement (6-20 juillet)</h2>
             <div className="phase-details">
                 <p><strong>Objectif :</strong> 50% contenu SaaS (stratégie business) + 50% Personal Branding (vlogs, lifestyle).</p>
                 <ul>
-                  <li>📹 1 vidéo longue/jour (environ 15-30 min)</li>
-                  <li>📱 3-5 réels/jour (30-60 sec)</li>
-                  <li>💼 Vidéos SaaS : tutoriels, fonctionnalités, cas d'usage</li>
-                  <li>👤 Contenu PB : coulisses, journée type, tips perso</li>
-                  <li>📊 Analyser engagement et adapter</li>
+                  <li>1 vidéo longue/jour (environ 15-30 min)</li>
+                  <li>3-5 réels/jour (30-60 sec)</li>
+                  <li>Vidéos SaaS : tutoriels, fonctionnalités, cas d'usage</li>
+                  <li>Contenu PB : coulisses, journée type, tips perso</li>
+                  <li>Analyser engagement et adapter</li>
                 </ul>
               </div>
           </section>
 
           <section className="strategie-phase">
-            <h2>🟠 Phase 3 : Branding Focus (21 juil - alentours du 21 juillet)</h2>
+            <h2>Phase 3 : Branding Focus (21 juil - alentours du 21 juillet)</h2>
             <div className="phase-details">
                 <p><strong>Objectif :</strong> 80% Personal Branding + 20% contenu SaaS. Finir TOUTE la préparation du trip Airbnb pour être prêt à partir.</p>
                 <ul>
-                  <li>👤 80% contenu branding : coulisses, lifestyle, personal touch</li>
-                  <li>💼 20% contenu SaaS : stratégie et cas d'usage</li>
-                  <li>🏠 Choisir l'Airbnb parfait (bon éclairage naturel, espace travail, wifi stable)</li>
-                  <li>✈️ Réserver, faire liste du matériel, préparer les valises</li>
-                  <li>✅ Après le 21 juillet : TOUT EST PRÉVU, plus rien à réfléchir, juste faire les valises</li>
+                  <li>80% contenu branding : coulisses, lifestyle, personal touch</li>
+                  <li>20% contenu SaaS : stratégie et cas d'usage</li>
+                  <li>Choisir l'Airbnb parfait (bon éclairage naturel, espace travail, wifi stable)</li>
+                  <li>Réserver, faire liste du matériel, préparer les valises</li>
+                  <li>Après le 21 juillet : TOUT EST PRÉVU, plus rien à réfléchir, juste faire les valises</li>
                 </ul>
               </div>
           </section>
 
           <section className="strategie-phase">
-            <h2>🟢 Phase 4 : Production Trip Airbnb (2-3 jours max)</h2>
+            <h2>Phase 4 : Production Trip Airbnb (2-3 jours max)</h2>
             <div className="phase-details">
                 <p><strong>Objectif :</strong> 48-72 heures de production ULTRA intensive en Airbnb. Tourner un maximum de contenu en très peu de temps.</p>
                 <ul>
-                  <li>🏠 Airbnb avec bon éclairage naturel, espace de travail confortable et wifi stable</li>
-                  <li>💪 Rythme : 15h de travail par jour possible grâce à l'ambiance</li>
-                  <li>🎬 Production massive en 48-72h : créer du contenu premium en mode batch</li>
-                  <li>👥 Collaborations avec d'autres créateurs pour dynamique + croissance mutuelle</li>
-                  <li>📱 Behind the scenes du trip = engagement maximal</li>
-                  <li>🚀 Résultat : stock de 1-2 mois de contenu créé en un week-end</li>
+                  <li>Airbnb avec bon éclairage naturel, espace de travail confortable et wifi stable</li>
+                  <li>Rythme : 15h de travail par jour possible grâce à l'ambiance</li>
+                  <li>Production massive en 48-72h : créer du contenu premium en mode batch</li>
+                  <li>Collaborations avec d'autres créateurs pour dynamique + croissance mutuelle</li>
+                  <li>Behind the scenes du trip = engagement maximal</li>
+                  <li>Résultat : stock de 1-2 mois de contenu créé en un week-end</li>
                 </ul>
               </div>
           </section>
@@ -403,10 +417,10 @@ export default function Home() {
         <section className="tab-content calendrier-content">
           <div className="month-tabs">
             <button className={`month-btn ${activeMonth === 'juillet' ? 'active' : ''}`} onClick={() => setActiveMonth('juillet')}>
-              📅 Juillet 2026
+              Juillet 2026
             </button>
             <button className={`month-btn ${activeMonth === 'aout' ? 'active' : ''}`} onClick={() => setActiveMonth('aout')}>
-              📅 Août 2026
+              Août 2026
             </button>
           </div>
           <div className="table-container">
@@ -443,7 +457,7 @@ export default function Home() {
                     <td className="miniature-cell">
                       {row.miniature && <img src={row.miniature} alt="miniature" className="thumbnail-preview" />}
                       <label className="file-upload-label">
-                        📁 Importer
+                        Importer
                         <input type="file" accept="image/*" onChange={(e) => {
                           const realIdx = calendarData.findIndex(d => d.date === row.date);
                           handleImageUpload(e, realIdx);
@@ -491,13 +505,13 @@ export default function Home() {
                 boxShadow: planSyncStatus === 'syncing' ? '0 2px 8px rgba(0,0,0,0.2)' : 'none'
               }}
             >
-              {planSyncStatus === 'syncing' ? '⏳ Synchronisation...' : planSyncStatus === 'synced' ? '✓ Synchronisé!' : '🔗 Synchroniser'}
+              {planSyncStatus === 'syncing' ? 'Synchronisation...' : planSyncStatus === 'synced' ? 'Synchronisé!' : 'Synchroniser'}
             </button>
             {planSyncStatus !== 'saved' && (
               <span style={{ marginLeft: '15px', fontSize: '13px', color: planSyncStatus === 'synced' ? '#10b981' : planSyncStatus === 'error' ? '#ef4444' : '#666' }}>
                 {planSyncStatus === 'syncing' && 'Synchronisation en cours...'}
-                {planSyncStatus === 'synced' && '✓ Données sauvegardées dans Supabase!'}
-                {planSyncStatus === 'error' && '✗ Erreur lors de la synchronisation'}
+                {planSyncStatus === 'synced' && 'Données sauvegardées dans Supabase!'}
+                {planSyncStatus === 'error' && 'Erreur lors de la synchronisation'}
               </span>
             )}
           </div>
@@ -551,7 +565,7 @@ export default function Home() {
 
           {selectedDay && (
             <div className="plan-detail">
-              <h3>📅 Juillet {selectedDay} - {planData[selectedDay]?.title || 'Sans titre'}</h3>
+              <h3>Juillet {selectedDay} - {planData[selectedDay]?.title || 'Sans titre'}</h3>
               <input
                 type="text"
                 placeholder="Titre du jour"
@@ -572,10 +586,10 @@ export default function Home() {
               />
 
               <div className="audio-section">
-                <label>🎤 Enregistrer vocalement</label>
+                <label>Enregistrer vocalement</label>
                 <div className="audio-controls">
                   <button className={`btn-record ${isPlanRecording ? 'recording' : ''}`} onClick={startPlanRecording}>
-                    {isPlanRecording ? '🔴 Enregistrement...' : '🎤 Démarrer'}
+                    {isPlanRecording ? 'Enregistrement...' : 'Démarrer'}
                   </button>
                 </div>
                 {planTranscript && (
@@ -585,8 +599,8 @@ export default function Home() {
                     <button onClick={() => {
                       updatePlan(selectedDay, { ...planData[selectedDay], description: (planData[selectedDay]?.description || '') + '\n' + planTranscript });
                       setPlanTranscript('');
-                    }}>✅ Ajouter à la description</button>
-                    <button onClick={() => setPlanTranscript('')}>🗑️ Effacer</button>
+                    }}>Ajouter à la description</button>
+                    <button onClick={() => setPlanTranscript('')}>Effacer</button>
                   </div>
                 )}
               </div>
@@ -597,7 +611,7 @@ export default function Home() {
                   checked={planData[selectedDay]?.completed || false}
                   onChange={(e) => updatePlan(selectedDay, { ...planData[selectedDay], completed: e.target.checked })}
                 />
-                Journée complétée ✓
+                Journée complétée
               </label>
             </div>
           )}
@@ -607,7 +621,7 @@ export default function Home() {
       {activeTab === 'idees' && (
         <section className="tab-content idees-content">
           <div className="idees-header">
-            <h2>💡 Idées</h2>
+            <h2>Idées</h2>
             <p>Toutes les idées de contenu, vidéos, et concepts</p>
           </div>
           <div className="idees-list">
@@ -652,15 +666,15 @@ export default function Home() {
                     ))}
                   </div>
                   <label className="file-upload-label">
-                    📁 Ajouter une image
+                    Ajouter une image
                     <input type="file" accept="image/*" onChange={(e) => handleImageUploadIdee(e, idx)} />
                   </label>
                 </div>
                 <div className="audio-section">
-                  <label>🎤 Enregistrer des notes vocales</label>
+                  <label>Enregistrer des notes vocales</label>
                   <div className="audio-controls">
                     <button className={`btn-record ${isRecording ? 'recording' : ''}`} onClick={startRecording}>
-                      {isRecording ? '🔴 Enregistrement...' : '🎤 Démarrer'}
+                      {isRecording ? 'Enregistrement...' : 'Démarrer'}
                     </button>
                   </div>
                   {transcript && (
@@ -670,7 +684,7 @@ export default function Home() {
                       <button onClick={() => {
                         updateIdee(idx, 'notes', (idee.notes || '') + '\n' + transcript);
                         setTranscript('');
-                      }}>✅ Ajouter à la description</button>
+                      }}>Ajouter à la description</button>
                     </div>
                   )}
                 </div>
@@ -679,24 +693,28 @@ export default function Home() {
                   <textarea value={idee.notes || ''} onChange={(e) => updateIdee(idx, 'notes', e.target.value)} placeholder="Notes supplémentaires..." className="notes-textarea" />
                 </div>
                 <button className="btn-delete-idee" onClick={async () => {
+                  if (idee.id) {
+                    await deleteIdeaFromSupabase(idee.id);
+                  }
                   const updated = idees.filter((_, i) => i !== idx);
                   setIdees(updated);
-                  await fetch('/api/idees', { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(updated) });
-                }}>🗑️ Supprimer</button>
+                }}>Supprimer</button>
               </div>
             ))}
           </div>
           <div className="add-idee-buttons">
             <button className="btn-add-idee" onClick={async () => {
-              const updated = [...idees, { titre: '', type: 'Idée générale', description: '', images: [], notes: '' }];
+              const newIdea = { titre: '', type: 'Idée générale', description: '', images: [], notes: '' };
+              await saveIdeaToSupabase(newIdea);
+              const updated = [...idees, newIdea];
               setIdees(updated);
-              await fetch('/api/idees', { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(updated) });
-            }}>➕ Ajouter une idée générale</button>
+            }}>Ajouter une idée générale</button>
             <button className="btn-add-idee btn-add-video" onClick={async () => {
-              const updated = [...idees, { titre: '', type: 'Vidéo', description: '', typeContenu: '', duree: '', images: [], notes: '' }];
+              const newIdea = { titre: '', type: 'Vidéo', description: '', typeContenu: '', duree: '', images: [], notes: '' };
+              await saveIdeaToSupabase(newIdea);
+              const updated = [...idees, newIdea];
               setIdees(updated);
-              await fetch('/api/idees', { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(updated) });
-            }}>🎬 Ajouter une idée de vidéo</button>
+            }}>Ajouter une idée de vidéo</button>
           </div>
         </section>
       )}
@@ -704,7 +722,7 @@ export default function Home() {
       {activeTab === 'finances' && (
         <section className="tab-content finances-content">
           <div className="finances-header">
-            <h2>📊 Finances & Matériel</h2>
+            <h2>Finances & Matériel</h2>
             <p>Tracker tout ce qu'on doit acheter et les dépenses</p>
           </div>
           <div className="finances-summary">
@@ -750,10 +768,11 @@ export default function Home() {
             </table>
           </div>
           <button className="btn-add-finance" onClick={async () => {
-            const updated = [...finances, { produit: '', quantite: '', prixUnitaire: '', statut: 'À commander', fournisseur: '', lien: '', notes: '' }];
+            const newFinance = { article: '', quantite: '', prixUnitaire: '', statut: 'À commander', fournisseur: '', lien: '', notes: '' };
+            await saveFinanceToSupabase(newFinance);
+            const updated = [...finances, newFinance];
             setFinances(updated);
-            await fetch('/api/finances', { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(updated) });
-          }}>➕ Ajouter un article</button>
+          }}>Ajouter un article</button>
         </section>
       )}
     </div>
