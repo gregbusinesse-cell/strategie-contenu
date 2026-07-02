@@ -313,27 +313,27 @@ export default function Home() {
       <nav className="tabs">
         <button className={`tab-btn ${activeTab === 'strategie' ? 'active' : ''}`}
           onClick={() => setActiveTab('strategie')}>
-          📄 Stratégie
+          Stratégie
         </button>
         <button className={`tab-btn ${activeTab === 'calendrier' ? 'active' : ''}`}
           onClick={() => setActiveTab('calendrier')}>
-          📅 Calendrier
+          Vidéo YouTube
         </button>
         <button className={`tab-btn ${activeTab === 'plan' ? 'active' : ''}`}
           onClick={() => setActiveTab('plan')}>
-          📋 Plan
+          Plan
         </button>
         <button className={`tab-btn ${activeTab === 'reunions' ? 'active' : ''}`}
           onClick={() => setActiveTab('reunions')}>
-          🤝 Réunions
+          Réunions
         </button>
         <button className={`tab-btn ${activeTab === 'idees' ? 'active' : ''}`}
           onClick={() => setActiveTab('idees')}>
-          💡 Idées
+          Idées
         </button>
         <button className={`tab-btn ${activeTab === 'finances' ? 'active' : ''}`}
           onClick={() => setActiveTab('finances')}>
-          📊 Finance
+          Finance
         </button>
       </nav>
 
@@ -418,27 +418,16 @@ export default function Home() {
               <thead>
                 <tr>
                   <th>Date</th>
-                  <th>Vidéo</th>
                   <th>Statut</th>
                   <th>Titre</th>
                   <th>Miniature</th>
-                  <th>Notes</th>
+                  <th>Description</th>
                 </tr>
               </thead>
               <tbody>
                 {getCalendarByMonth(activeMonth).map((row, idx) => (
                   <tr key={idx} className={`phase-${row.phase}`}>
                     <td className="date-cell">{row.day} {new Date(row.date).toLocaleDateString('fr-FR', { day: 'numeric', month: 'long', year: 'numeric' })}</td>
-                    <td>
-                      <select value={row.video} onChange={(e) => {
-                        const realIdx = calendarData.findIndex(d => d.date === row.date);
-                        updateCell(realIdx, 'video', e.target.value);
-                      }}>
-                        <option value="">Sélectionner</option>
-                        <option value="Vidéo longue">Vidéo longue</option>
-                        <option value="Vidéo courte">Vidéo courte</option>
-                      </select>
-                    </td>
                     <td>
                       <select value={row.status} onChange={(e) => {
                         const realIdx = calendarData.findIndex(d => d.date === row.date);
@@ -472,7 +461,7 @@ export default function Home() {
                           const realIdx = calendarData.findIndex(d => d.date === row.date);
                           updateCell(realIdx, 'notes', e.target.value);
                         }}
-                        placeholder="Notes..."
+                        placeholder="Description..."
                         className="notes-textarea"
                       />
                     </td>
@@ -487,7 +476,7 @@ export default function Home() {
       {activeTab === 'plan' && (
         <section className="tab-content plan-content">
           <div style={{ marginBottom: '20px' }}>
-            <h2 style={{ display: 'inline-block', marginRight: '20px' }}>📋 Plan Juillet 2026</h2>
+            <h2 style={{ display: 'inline-block', marginRight: '20px' }}>Plan Juillet 2026</h2>
             <button
               onClick={syncPlanFromServer}
               disabled={planSyncStatus === 'syncing'}
