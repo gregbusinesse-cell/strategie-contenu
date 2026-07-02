@@ -661,7 +661,7 @@ export default function Home() {
                     {(idee.images || []).map((img, imgIdx) => (
                       <div key={imgIdx} className="image-item">
                         <img src={img} alt="référence" />
-                        <button onClick={() => updateIdee(idx, 'images', idee.images.filter((_, i) => i !== imgIdx))}>✕</button>
+                        <button onClick={() => updateIdee(idx, 'images', idee.images.filter((_, i) => i !== imgIdx))}>X</button>
                       </div>
                     ))}
                   </div>
