@@ -27,6 +27,7 @@ export default function Home() {
   const [planSyncStatus, setPlanSyncStatus] = useState('saved');
   const [tresorerie, setTresorerie] = useState(785);
   const [expandedIdea, setExpandedIdea] = useState(null);
+  const [activeFinanceMonth, setActiveFinanceMonth] = useState('juillet');
 
   // Auto-resize textarea to fit content
   useEffect(() => {
@@ -731,7 +732,20 @@ export default function Home() {
             <h2>Finances & Matériel</h2>
             <p>Tracker tout ce qu'on doit acheter et les dépenses</p>
           </div>
-          <div className="finances-header-info">Mois de juillet</div>
+          <div className="finances-month-selector">
+            <button
+              className={`month-btn ${activeFinanceMonth === 'juillet' ? 'active' : ''}`}
+              onClick={() => setActiveFinanceMonth('juillet')}
+            >
+              Juillet
+            </button>
+            <button
+              className={`month-btn ${activeFinanceMonth === 'aout' ? 'active' : ''}`}
+              onClick={() => setActiveFinanceMonth('aout')}
+            >
+              Août
+            </button>
+          </div>
           <div className="finances-summary">
             <div className="summary-card tresorerie-card">
               <span>Trésorerie :</span>
@@ -762,31 +776,34 @@ export default function Home() {
                 </tr>
               </thead>
               <tbody>
-                {finances.map((item, idx) => (
-                  <tr key={idx}>
-                    <td><input type="text" value={item.article || ''} onChange={(e) => updateFinance(idx, 'article', e.target.value)} placeholder="Produit..." /></td>
-                    <td><input type="number" value={item.quantite || ''} onChange={(e) => updateFinance(idx, 'quantite', e.target.value)} placeholder="Qté" /></td>
-                    <td><input type="number" value={item.prixunitaire || ''} onChange={(e) => updateFinance(idx, 'prixunitaire', e.target.value)} placeholder="€" /></td>
+                {finances.filter(item => (item.mois || 'juillet') === activeFinanceMonth).map((item) => {
+                  const realIdx = finances.findIndex(f => f.id === item.id);
+                  return (
+                  <tr key={item.id}>
+                    <td><input type="text" value={item.article || ''} onChange={(e) => updateFinance(realIdx, 'article', e.target.value)} placeholder="Produit..." /></td>
+                    <td><input type="number" value={item.quantite || ''} onChange={(e) => updateFinance(realIdx, 'quantite', e.target.value)} placeholder="Qté" /></td>
+                    <td><input type="number" value={item.prixunitaire || ''} onChange={(e) => updateFinance(realIdx, 'prixunitaire', e.target.value)} placeholder="€" /></td>
                     <td className="total-cell">€{(parseFloat(item.prixunitaire || 0) * parseInt(item.quantite || 0)).toFixed(2)}</td>
                     <td>
-                      <select value={item.statut || 'À commander'} onChange={(e) => updateFinance(idx, 'statut', e.target.value)}>
+                      <select value={item.statut || 'À commander'} onChange={(e) => updateFinance(realIdx, 'statut', e.target.value)}>
                         <option>À commander</option>
                         <option>Acheté</option>
                         <option>Planifiée</option>
                         <option>Disponible</option>
                       </select>
                     </td>
-                    <td><input type="text" value={item.fournisseur || ''} onChange={(e) => updateFinance(idx, 'fournisseur', e.target.value)} placeholder="Fournisseur..." /></td>
-                    <td><input type="url" value={item.lien || ''} onChange={(e) => updateFinance(idx, 'lien', e.target.value)} placeholder="https://..." /></td>
-                    <td><textarea value={item.notes || ''} onChange={(e) => updateFinance(idx, 'notes', e.target.value)} placeholder="Notes..." className="notes-textarea" /></td>
-                    <td><button onClick={() => deleteFinance(idx)} className="btn-delete">X</button></td>
+                    <td><input type="text" value={item.fournisseur || ''} onChange={(e) => updateFinance(realIdx, 'fournisseur', e.target.value)} placeholder="Fournisseur..." /></td>
+                    <td><input type="url" value={item.lien || ''} onChange={(e) => updateFinance(realIdx, 'lien', e.target.value)} placeholder="https://..." /></td>
+                    <td><textarea value={item.notes || ''} onChange={(e) => updateFinance(realIdx, 'notes', e.target.value)} placeholder="Notes..." className="notes-textarea" /></td>
+                    <td><button onClick={() => deleteFinance(realIdx)} className="btn-delete">X</button></td>
                   </tr>
-                ))}
+                  );
+                })}
               </tbody>
             </table>
           </div>
           <button className="btn-add-finance" onClick={async () => {
-            const newFinance = { article: '', quantite: '', prixUnitaire: '', statut: 'À commander', fournisseur: '', lien: '', notes: '' };
+            const newFinance = { article: '', quantite: '', prixunitaire: '', statut: 'À commander', fournisseur: '', lien: '', notes: '', mois: activeFinanceMonth };
             await saveFinanceToSupabase(newFinance);
             const updated = [...finances, newFinance];
             setFinances(updated);
