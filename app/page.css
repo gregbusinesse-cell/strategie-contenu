@@ -702,6 +702,27 @@ header .subtitle {
   font-size: 1.8em;
 }
 
+.tresorerie-card {
+  background: linear-gradient(135deg, #1F4E78 0%, #2c5aa0 100%);
+}
+
+.tresorerie-input {
+  background: transparent;
+  border: 2px solid white;
+  color: white;
+  font-size: 1.8em;
+  font-weight: bold;
+  padding: 5px 10px;
+  border-radius: 6px;
+  width: 120px;
+  text-align: center;
+}
+
+.tresorerie-input:focus {
+  outline: none;
+  box-shadow: 0 0 8px rgba(255, 255, 255, 0.5);
+}
+
 .finances-table {
   width: 100%;
   border-collapse: collapse;
@@ -994,6 +1015,22 @@ header .subtitle {
 
 .transcript-box button:hover {
   background: #218838;
+}
+
+.btn-delete {
+  padding: 6px 12px;
+  background: #ff6b6b;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 0.85em;
+  font-weight: bold;
+  transition: all 0.3s ease;
+}
+
+.btn-delete:hover {
+  background: #ff5252;
 }
 
 .btn-delete-idee {

@@ -25,6 +25,7 @@ export default function Home() {
   const [planTranscript, setPlanTranscript] = useState('');
   const [planRecognition, setPlanRecognition] = useState(null);
   const [planSyncStatus, setPlanSyncStatus] = useState('saved');
+  const [tresorerie, setTresorerie] = useState(785);
 
   // Auto-resize textarea to fit content
   useEffect(() => {
@@ -192,6 +193,15 @@ export default function Home() {
     // Save to Supabase
     saveFinanceToSupabase(updated[index])
       .catch(err => console.error('Erreur save finance:', err));
+  };
+
+  const deleteFinance = async (index) => {
+    const item = finances[index];
+    if (item.id) {
+      await deleteFinanceFromSupabase(item.id);
+    }
+    const updated = finances.filter((_, i) => i !== index);
+    setFinances(updated);
   };
 
   const updateIdee = async (index, field, value) => {
@@ -726,9 +736,21 @@ export default function Home() {
             <p>Tracker tout ce qu'on doit acheter et les dépenses</p>
           </div>
           <div className="finances-summary">
+            <div className="summary-card tresorerie-card">
+              <span>Trésorerie actuelle :</span>
+              <input type="number"
+                value={tresorerie}
+                onChange={(e) => setTresorerie(parseFloat(e.target.value))}
+                className="tresorerie-input"
+              />€
+            </div>
             <div className="summary-card">
               <span>Total estimé :</span>
-              <strong>€{finances.reduce((sum, item) => sum + (parseFloat(item.prixUnitaire || 0) * parseInt(item.quantite || 0)), 0).toFixed(2)}</strong>
+              <strong>€{finances.reduce((sum, item) => sum + (parseFloat(item.prixunitaire || 0) * parseInt(item.quantite || 0)), 0).toFixed(2)}</strong>
+            </div>
+            <div className="summary-card">
+              <span>Trésorerie restante :</span>
+              <strong>€{(tresorerie - finances.reduce((sum, item) => sum + (parseFloat(item.prixunitaire || 0) * parseInt(item.quantite || 0)), 0)).toFixed(2)}</strong>
             </div>
           </div>
           <div className="table-container">
@@ -743,25 +765,28 @@ export default function Home() {
                   <th>Fournisseur</th>
                   <th>Lien</th>
                   <th>Notes</th>
+                  <th>Action</th>
                 </tr>
               </thead>
               <tbody>
                 {finances.map((item, idx) => (
                   <tr key={idx}>
-                    <td><input type="text" value={item.produit || ''} onChange={(e) => updateFinance(idx, 'produit', e.target.value)} placeholder="Produit..." /></td>
+                    <td><input type="text" value={item.article || ''} onChange={(e) => updateFinance(idx, 'article', e.target.value)} placeholder="Produit..." /></td>
                     <td><input type="number" value={item.quantite || ''} onChange={(e) => updateFinance(idx, 'quantite', e.target.value)} placeholder="Qté" /></td>
-                    <td><input type="number" value={item.prixUnitaire || ''} onChange={(e) => updateFinance(idx, 'prixUnitaire', e.target.value)} placeholder="€" /></td>
-                    <td className="total-cell">€{(parseFloat(item.prixUnitaire || 0) * parseInt(item.quantite || 0)).toFixed(2)}</td>
+                    <td><input type="number" value={item.prixunitaire || ''} onChange={(e) => updateFinance(idx, 'prixunitaire', e.target.value)} placeholder="€" /></td>
+                    <td className="total-cell">€{(parseFloat(item.prixunitaire || 0) * parseInt(item.quantite || 0)).toFixed(2)}</td>
                     <td>
                       <select value={item.statut || 'À commander'} onChange={(e) => updateFinance(idx, 'statut', e.target.value)}>
                         <option>À commander</option>
-                        <option>Commandé</option>
-                        <option>Reçu</option>
+                        <option>Acheté</option>
+                        <option>Planifiée</option>
+                        <option>Disponible</option>
                       </select>
                     </td>
                     <td><input type="text" value={item.fournisseur || ''} onChange={(e) => updateFinance(idx, 'fournisseur', e.target.value)} placeholder="Fournisseur..." /></td>
                     <td><input type="url" value={item.lien || ''} onChange={(e) => updateFinance(idx, 'lien', e.target.value)} placeholder="https://..." /></td>
                     <td><textarea value={item.notes || ''} onChange={(e) => updateFinance(idx, 'notes', e.target.value)} placeholder="Notes..." className="notes-textarea" /></td>
+                    <td><button onClick={() => deleteFinance(idx)} className="btn-delete">X</button></td>
                   </tr>
                 ))}
               </tbody>
